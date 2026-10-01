@@ -44,32 +44,66 @@ laravel_api/
 │   ├── Http/
 │   │   ├── Controllers/Api/V1/
 │   │   │   ├── AuthController.php
-│   │   │   ├── CatalogController.php
-│   │   │   ├── InventoryController.php
+│   │   │   ├── CategoryController.php
+│   │   │   ├── ProductController.php
+│   │   │   ├── ProductVariantController.php
+│   │   │   ├── ProductIngredientController.php
+│   │   │   ├── IngredientController.php
+│   │   │   ├── InventoryMovementController.php
+│   │   │   ├── ShopTableController.php
 │   │   │   ├── OrderController.php
+│   │   │   ├── PaymentController.php
+│   │   │   ├── CustomerController.php
 │   │   │   ├── StaffController.php
+│   │   │   ├── ShiftController.php
+│   │   │   ├── SettingController.php
 │   │   │   └── ReportController.php
 │   │   ├── Middleware/EnsureUserHasRole.php
 │   │   ├── Requests/
 │   │   │   ├── LoginRequest.php
+│   │   │   ├── StoreCategoryRequest.php
+│   │   │   ├── UpdateCategoryRequest.php
+│   │   │   ├── StoreProductVariantRequest.php
+│   │   │   ├── StoreProductIngredientRequest.php
+│   │   │   ├── StoreIngredientRequest.php
+│   │   │   ├── StoreInventoryMovementRequest.php
 │   │   │   ├── StoreOrderRequest.php
 │   │   │   ├── UpdateOrderStatusRequest.php
-│   │   │   └── StoreProductRequest.php
+│   │   │   ├── StorePaymentRequest.php
+│   │   │   ├── StoreCustomerRequest.php
+│   │   │   └── UpdateSettingsRequest.php
 │   │   └── Resources/
 │   │       ├── OrderResource.php
+│   │       ├── CategoryResource.php
 │   │       ├── ProductResource.php
+│   │       ├── ProductVariantResource.php
+│   │       ├── IngredientResource.php
+│   │       ├── InventoryMovementResource.php
+│   │       ├── ShopTableResource.php
+│   │       ├── CustomerResource.php
+│   │       ├── PaymentResource.php
+│   │       ├── StaffResource.php
+│   │       ├── ShiftResource.php
+│   │       ├── SettingResource.php
+│   │       ├── ReportResource.php
 │   │       └── UserResource.php
 │   ├── Models/
 │   │   ├── Category.php
+│   │   ├── Customer.php
 │   │   ├── Ingredient.php
 │   │   ├── InventoryMovement.php
 │   │   ├── Order.php
 │   │   ├── OrderItem.php
+│   │   ├── OrderStatusHistory.php
+│   │   ├── Payment.php
 │   │   ├── Product.php
 │   │   ├── ProductIngredient.php
 │   │   ├── ProductVariant.php
+│   │   ├── Setting.php
+│   │   ├── Shift.php
 │   │   ├── Shop.php
 │   │   ├── ShopTable.php
+│   │   ├── StaffProfile.php
 │   │   └── User.php
 │   ├── Policies/
 │   │   ├── OrderPolicy.php
@@ -99,6 +133,37 @@ Controller → Form Request → optional service → Eloquent → Resource
 | Service | Transactions spanning models, such as order creation or stock changes. |
 | Policy/middleware | Role and record-level authorization. |
 | Model | Relationships, casts, scopes, and small invariants. |
+
+Use one controller per resource instead of one controller for the entire
+catalog or inventory area:
+
+| Controller | Responsibility |
+|---|---|
+| `AuthController` | Login, logout, and current-user details. |
+| `CategoryController` | Category CRUD and active-category listing. |
+| `ProductController` | Product CRUD, filtering, and availability. |
+| `ProductVariantController` | Variant CRUD, prices, and availability. |
+| `ProductIngredientController` | Recipe ingredients and quantities for a variant. |
+| `IngredientController` | Ingredient CRUD and low-stock queries. |
+| `InventoryMovementController` | Stock movements and movement history. |
+| `ShopTableController` | Table listing and table-status changes. |
+| `OrderController` | Order listing, creation, details, status, and cancellation. |
+| `PaymentController` | Payment recording for an order. |
+| `CustomerController` | Customer search, registration, and updates. |
+| `StaffController` | Staff listing, creation, updates, and deactivation. |
+| `ShiftController` | Starting, closing, and listing shifts. |
+| `SettingController` | Reading and updating shop settings. |
+| `ReportController` | Sales, best-seller, and staff-revenue reports. |
+
+Do not create controllers for join tables or history tables unless they need
+their own public API. `ProductIngredientController` is kept because recipes
+are managed directly by the client. Order status histories remain an internal
+record written by `OrderService`.
+
+The same rule applies to other layers: create a request, resource, policy, or
+service only when an endpoint needs it. Every write endpoint gets a Form
+Request, every public model response uses a Resource, and multi-model
+transactions use a Service. Simple reads and CRUD do not need a service.
 
 Do not add repositories or use-case classes. Eloquent is already the
 persistence layer. A service is justified only for a transaction or
@@ -278,6 +343,10 @@ Base URL: `/api/v1`. Protected routes use Sanctum bearer authentication.
 | GET | `/products` | Filtered available products | Auth |
 | POST/PATCH/DELETE | `/products[/{id}]` | Manage products | owner, admin, manager |
 | GET | `/products/{id}` | Product detail | Auth |
+| GET/POST | `/products/{id}/variants` | List/create product variants | owner, admin, manager |
+| PATCH/DELETE | `/variants/{id}` | Update/delete a product variant | owner, admin, manager |
+| GET/POST | `/variants/{variant}/ingredients` | List/add recipe ingredients | owner, admin, manager |
+| PATCH/DELETE | `/variants/{variant}/ingredients/{ingredient}` | Update/delete a recipe ingredient | owner, admin, manager |
 | GET | `/ingredients` | Stock and low-stock state | owner, admin, manager |
 | POST | `/ingredients` | Create ingredient | owner, admin, manager |
 | POST | `/ingredients/{id}/movements` | Record stock movement | owner, admin, manager |
