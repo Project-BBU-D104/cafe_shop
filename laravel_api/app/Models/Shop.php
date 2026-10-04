@@ -5,13 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['shop_id', 'name', 'description', 'sort_order', 'is_active'])]
-class Category extends Model
+#[Fillable([
+    'name',
+    'code',
+    'phone',
+    'email',
+    'address',
+    'tax_rate',
+    'currency',
+    'receipt_footer',
+    'timezone',
+    'is_active',
+])]
+class Shop extends Model
 {
     protected function casts(): array
     {
         return [
-            'sort_order' => 'integer',
+            'tax_rate' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }

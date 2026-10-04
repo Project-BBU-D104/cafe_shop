@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->foreignId('shop_id')->constrained('shops')->cascadeOnDelete();
+            $table->string('name');
+            $table->unique(['shop_id', 'name']);
             $table->text('description')->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

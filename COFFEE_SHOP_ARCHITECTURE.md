@@ -218,7 +218,10 @@ Install Sanctum with `php artisan install:api`; use its generated
 ### Catalog
 
 `categories`: `id`, `shop_id`, `name`, nullable `description`, `sort_order`,
-`is_active`, timestamps, soft deletes. Unique `(shop_id, name)`.
+`is_active`, timestamps. Unique `(shop_id, name)`. No soft deletes: a trashed
+row would keep reserving the name and block re-creating it. Since
+`products.category_id` references this table, DELETE on a category that still
+has products returns 409 rather than cascading.
 
 `products`: `id`, `shop_id`, `category_id`, `name`, `sku`, nullable
 `description` and `image_url`, `is_available`, `sort_order`, timestamps, soft
@@ -559,6 +562,15 @@ For the assignment, local setup only requires:
 php artisan migrate:fresh --seed
 php artisan test
 ```
+
+### Testing with Insomnia
+
+Run `php artisan serve` and point Insomnia requests at
+`http://127.0.0.1:8000/api/v1`. Set header `Accept: application/json` on
+every request, plus `Content-Type: application/json` on writes, so
+validation errors return the JSON envelope instead of an HTML page. Once
+Sanctum exists, copy the `token` from the login response into an
+`Authorization: Bearer <token>` header on protected requests.
 
 Add deployment hardening, queues, schedulers, audit logs, backups, and CI
 only if they become evaluated requirements.

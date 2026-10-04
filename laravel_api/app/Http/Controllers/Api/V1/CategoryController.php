@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Models\Shop;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -26,7 +27,16 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request): JsonResponse
     {
-        return (new CategoryResource(Category::create($request->validated())))
+        // ponytail: single shop until auth lands — swap to $request->user()->shop_id once Sanctum routes exist
+        $shopId = Shop::query()->orderBy('id')->value('id');
+        abort_unless($shopId, 500, 'No shop configured. Run: php artisan db:seed');
+
+        $category = Category::create([
+            ...$request->validated(),
+            'shop_id' => $shopId,
+        ]);
+
+        return (new CategoryResource($category))
             ->response()
             ->setStatusCode(201);
     }
