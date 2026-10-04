@@ -21,11 +21,6 @@ integration, receipt printing, notifications, queues, scheduled jobs, audit
 log browsing, payment-provider integration, and production deployment
 automation.
 
-Assumptions: Laravel 13, PHP 8.3+, MySQL 8, and Sanctum personal access
-tokens. Store money as `DECIMAL(12,2)` and calculate totals on the server.
-Copy product names and prices into order items so historical orders remain
-stable.
-
 ## Architecture
 
 Use Laravel's normal structure. Add files when their feature is implemented;
@@ -119,55 +114,16 @@ laravel_api/
 └── tests/Feature/Api/V1/
 ```
 
-Request flow:
+Keep the stack simple:
 
-```text
-Controller → Form Request → optional service → Eloquent → Resource
-```
+- Controller: HTTP in/out and basic CRUD.
+- Form Request: validation and auth boundary.
+- Resource: stable JSON response shape.
+- Service: only for multi-model transactions such as order creation or stock updates.
+- Policy/middleware: role and ownership checks.
+- Model: relationships, casts, scopes, and local invariants.
 
-| Layer | Responsibility |
-|---|---|
-| Controller | HTTP input/output and straightforward CRUD. |
-| Form Request | Boundary validation and authorization. |
-| Resource | Stable JSON; do not expose model internals. |
-| Service | Transactions spanning models, such as order creation or stock changes. |
-| Policy/middleware | Role and record-level authorization. |
-| Model | Relationships, casts, scopes, and small invariants. |
-
-Use one controller per resource instead of one controller for the entire
-catalog or inventory area:
-
-| Controller | Responsibility |
-|---|---|
-| `AuthController` | Login, logout, and current-user details. |
-| `CategoryController` | Category CRUD and active-category listing. |
-| `ProductController` | Product CRUD, filtering, and availability. |
-| `ProductVariantController` | Variant CRUD, prices, and availability. |
-| `ProductIngredientController` | Recipe ingredients and quantities for a variant. |
-| `IngredientController` | Ingredient CRUD and low-stock queries. |
-| `InventoryMovementController` | Stock movements and movement history. |
-| `ShopTableController` | Table listing and table-status changes. |
-| `OrderController` | Order listing, creation, details, status, and cancellation. |
-| `PaymentController` | Payment recording for an order. |
-| `CustomerController` | Customer search, registration, and updates. |
-| `StaffController` | Staff listing, creation, updates, and deactivation. |
-| `ShiftController` | Starting, closing, and listing shifts. |
-| `SettingController` | Reading and updating shop settings. |
-| `ReportController` | Sales, best-seller, and staff-revenue reports. |
-
-Do not create controllers for join tables or history tables unless they need
-their own public API. `ProductIngredientController` is kept because recipes
-are managed directly by the client. Order status histories remain an internal
-record written by `OrderService`.
-
-The same rule applies to other layers: create a request, resource, policy, or
-service only when an endpoint needs it. Every write endpoint gets a Form
-Request, every public model response uses a Resource, and multi-model
-transactions use a Service. Simple reads and CRUD do not need a service.
-
-Do not add repositories or use-case classes. Eloquent is already the
-persistence layer. A service is justified only for a transaction or
-multi-model business flow.
+Use one controller per resource, no repositories or use-case classes. Eloquent is the persistence layer and services are justified only for transactions or multi-model business flows.
 
 ## Database conventions
 
@@ -309,21 +265,6 @@ Order 1──* OrderItems, Payments, StatusHistories
 Customer 1──* Orders
 User 1──* Orders and Shifts
 ```
-
-## Migration and seed order
-
-1. `shops`
-2. `users` and Sanctum tokens
-3. `categories`, `products`, `product_variants`
-4. `ingredients`, `product_ingredients`
-5. `shop_tables`, `customers`, `staff_profiles`, `shifts`
-6. `orders`, `order_items`, `payments`, `order_status_histories`
-7. `inventory_movements`, `settings`
-
-Seed one shop, owner, manager, cashier, categories, products with variants,
-ingredients with recipes, tables, and one customer. Keep demo passwords out
-of committed source; use an environment variable or generate one during
-setup.
 
 ## API v1
 
