@@ -10,7 +10,7 @@ Required:
 1. Login, logout, and role-based access.
 2. Categories, products, variants, and availability.
 3. Ingredients, recipes, stock movements, and low-stock state.
-4. Tables, customers, orders, payments, and order-status changes.
+4. Tables, orders, payments, and order-status changes.
 5. Staff, shifts, shop settings, and three basic sales reports.
 
 The application has one shop. Keep `shop_id` for ownership checks, but do not
@@ -48,7 +48,6 @@ laravel_api/
 │   │   │   ├── ShopTableController.php
 │   │   │   ├── OrderController.php
 │   │   │   ├── PaymentController.php
-│   │   │   ├── CustomerController.php
 │   │   │   ├── StaffController.php
 │   │   │   ├── ShiftController.php
 │   │   │   ├── SettingController.php
@@ -65,7 +64,6 @@ laravel_api/
 │   │   │   ├── StoreOrderRequest.php
 │   │   │   ├── UpdateOrderStatusRequest.php
 │   │   │   ├── StorePaymentRequest.php
-│   │   │   ├── StoreCustomerRequest.php
 │   │   │   └── UpdateSettingsRequest.php
 │   │   └── Resources/
 │   │       ├── OrderResource.php
@@ -75,7 +73,6 @@ laravel_api/
 │   │       ├── IngredientResource.php
 │   │       ├── InventoryMovementResource.php
 │   │       ├── ShopTableResource.php
-│   │       ├── CustomerResource.php
 │   │       ├── PaymentResource.php
 │   │       ├── StaffResource.php
 │   │       ├── ShiftResource.php
@@ -84,7 +81,6 @@ laravel_api/
 │   │       └── UserResource.php
 │   ├── Models/
 │   │   ├── Category.php
-│   │   ├── Customer.php
 │   │   ├── Ingredient.php
 │   │   ├── InventoryMovement.php
 │   │   ├── Order.php
@@ -135,6 +131,25 @@ Use one controller per resource, no repositories or use-case classes. Eloquent i
 - Use enums or constrained strings for finite states.
 
 ## Tables
+
+Progress: tick a table once its migration, model, and API endpoints exist.
+
+- [x] `shops`
+- [x] `users`
+- [x] `categories`
+- [ ] `products`
+- [ ] `product_variants`
+- [ ] `product_ingredients`
+- [ ] `ingredients`
+- [ ] `inventory_movements`
+- [ ] `shop_tables`
+- [ ] `orders`
+- [ ] `order_items`
+- [ ] `payments`
+- [ ] `order_status_histories`
+- [ ] `staff_profiles`
+- [ ] `shifts`
+- [ ] `settings`
 
 ### Identity and shop
 
@@ -216,7 +231,6 @@ id
 shop_id FK
 order_number
 user_id nullable FK users
-customer_id nullable FK customers
 table_id nullable FK shop_tables
 type ENUM(dine_in, takeaway, delivery)
 status ENUM(pending, preparing, completed, cancelled)
@@ -240,10 +254,7 @@ nullable transaction reference and paid time, timestamps.
 `order_status_histories`: `id`, `order_id`, nullable `user_id`, `from_status`,
 `to_status`, nullable note, `created_at`.
 
-### Customers, staff, shifts, settings
-
-`customers`: `id`, `shop_id`, nullable `user_id`, `name`, nullable phone/email,
-`is_active`, timestamps, soft deletes. Index shop plus phone/email.
+### Staff, shifts, settings
 
 `staff_profiles`: `id`, unique `user_id`, unique `employee_code`, nullable
 hire date, hourly rate, emergency contact, timestamps.
@@ -257,12 +268,11 @@ integer, decimal, boolean, json)`, timestamps. Unique `(shop_id, key)`.
 ## Relationships
 
 ```text
-Shop 1──* Users, Categories, Ingredients, Tables, Customers, Orders, Shifts
+Shop 1──* Users, Categories, Ingredients, Tables, Orders, Shifts
 Category 1──* Products 1──* ProductVariants
 ProductVariant *──* Ingredient (through ProductIngredients)
 Ingredient 1──* InventoryMovements
 Order 1──* OrderItems, Payments, StatusHistories
-Customer 1──* Orders
 User 1──* Orders and Shifts
 ```
 
@@ -308,7 +318,6 @@ Base URL: `/api/v1`. Protected routes use Sanctum bearer authentication.
 | PATCH | `/orders/{id}/status` | Valid status transition | owner, admin, manager, cashier |
 | POST | `/orders/{id}/pay` | Record payment | owner, admin, manager, cashier |
 | POST | `/orders/{id}/cancel` | Cancel order | owner, admin, manager |
-| GET/POST | `/customers[/{id}]` | Search/register customers | owner, admin, manager, cashier |
 
 ### Staff and reports
 
@@ -493,7 +502,7 @@ Implement in this order:
 1. Sanctum, MySQL, shop/users/roles, and seeded login.
 2. Catalog and authorization.
 3. Ingredients, recipes, movements, and low-stock queries.
-4. Tables, customers, orders, payments, status history, and stock use.
+4. Tables, orders, payments, status history, and stock use.
 5. Staff, shifts, settings, and reports.
 6. Feature tests, then connect Flutter.
 
