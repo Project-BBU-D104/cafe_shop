@@ -36,9 +36,10 @@ After installation, ask the user to restart their terminal. If the agent needs t
 
 ## Agent Setup
 
-Install Laravel Boost from the application root before making application changes:
+Install Laravel Boost from the application root before making application changes. Change into the application directory first (Windows PowerShell):
 
-```sh
+```powershell
+Set-Location .\laravel_api
 composer require laravel/boost --dev
 php artisan boost:install
 ```

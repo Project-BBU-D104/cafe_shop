@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,13 +17,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $shop = Shop::firstOrCreate(
+            ['code' => 'MAIN'],
+            [
+                'name' => 'Coffee Shop Main',
+                'currency' => 'USD',
+                'timezone' => 'Asia/Phnom_Penh',
+                'is_active' => true,
+            ]
+        );
 
-        Shop::firstOrCreate(['code' => 'MAIN'], ['name' => 'Coffee Shop']);
+        User::firstOrCreate(
+            ['email' => 'owner@example.com'],
+            [
+                'shop_id' => $shop->id,
+                'name' => 'Shop Owner',
+                'password' => 'password123',
+                'role' => UserRole::Owner,
+                'is_active' => true,
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'cashier@example.com'],
+            [
+                'shop_id' => $shop->id,
+                'name' => 'Default Cashier',
+                'password' => 'password123',
+                'role' => UserRole::Cashier,
+                'is_active' => true,
+            ]
+        );
     }
 }
