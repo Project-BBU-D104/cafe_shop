@@ -7,17 +7,18 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
-use App\Models\Shop;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class CategoryController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $categories = Category::query()
-            ->when(! request()->boolean('include_inactive'), fn ($query) => $query->where('is_active', true))
+            ->where('shop_id', $request->user()->shop_id)
+            ->when(! $request->boolean('include_inactive'), fn ($query) => $query->where('is_active', true))
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
@@ -27,13 +28,9 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request): JsonResponse
     {
-        // ponytail: single shop until auth lands — swap to $request->user()->shop_id once Sanctum routes exist
-        $shopId = Shop::query()->orderBy('id')->value('id');
-        abort_unless($shopId, 500, 'No shop configured. Run: php artisan db:seed');
-
         $category = Category::create([
             ...$request->validated(),
-            'shop_id' => $shopId,
+            'shop_id' => $request->user()->shop_id,
         ]);
 
         return (new CategoryResource($category))
@@ -41,22 +38,30 @@ class CategoryController extends Controller
             ->setStatusCode(201);
     }
 
-    public function show(Category $category): CategoryResource
+    public function show(Request $request, int $category): CategoryResource
     {
-        return new CategoryResource($category);
+        return new CategoryResource($this->categoryForUser($request, $category));
     }
 
-    public function update(UpdateCategoryRequest $request, Category $category): CategoryResource
+    public function update(UpdateCategoryRequest $request, int $category): CategoryResource
     {
+        $category = $this->categoryForUser($request, $category);
         $category->update($request->validated());
 
         return new CategoryResource($category->refresh());
     }
 
-    public function destroy(Category $category): Response
+    public function destroy(Request $request, int $category): Response
     {
-        $category->delete();
+        $this->categoryForUser($request, $category)->delete();
 
         return response()->noContent();
+    }
+
+    private function categoryForUser(Request $request, int $category): Category
+    {
+        return Category::query()
+            ->where('shop_id', $request->user()->shop_id)
+            ->findOrFail($category);
     }
 }

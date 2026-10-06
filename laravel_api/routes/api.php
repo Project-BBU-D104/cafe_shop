@@ -14,5 +14,5 @@ Route::prefix('v1')->group(function (): void {
         });
     });
 
-    Route::apiResource('categories', CategoryController::class);
+    Route::middleware('auth:sanctum')->apiResource('categories', CategoryController::class);
 });
