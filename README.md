@@ -10,7 +10,7 @@ This repository contains a full-stack coffee shop management system for a mobile
 - Dart SDK: `^3.12.0`
 - Application version: `1.0.0+1`
 
-Flutter packages declared in `flutter_app/pubspec.yaml`:
+Flutter packages declared in `frontend/pubspec.yaml`:
 
 | Package | Version |
 |---|---|
@@ -44,7 +44,7 @@ Composer packages declared in `laravel_api/composer.json`:
 
 ## Project structure
 
-- `flutter_app/` - Flutter mobile application for staff and cashier workflows
+- `frontend/` - Flutter mobile application for staff and cashier workflows
 - `laravel_api/` - Laravel API backend for authentication, catalog, inventory, orders, payments, and reports
 - `COFFEE_SHOP_ARCHITECTURE.md` - backend and database architecture specification
 - `FLUTTER_ARCHITECTURE.md` - Flutter app architecture specification
@@ -81,7 +81,7 @@ The Laravel API exposes the restaurant management endpoints used by the mobile a
 From the repository root:
 
 ```bash
-cd flutter_app
+cd frontend
 flutter pub get
 flutter run
 ```
