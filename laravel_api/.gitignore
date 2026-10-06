@@ -6,6 +6,8 @@
 .phpactor.json
 .phpunit.result.cache
 /.codex
+/.claude
+/.agents
 /.cursor/
 /.idea
 /.nova
@@ -25,3 +27,4 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+opencode.json
