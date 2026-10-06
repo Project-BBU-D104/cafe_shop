@@ -1,128 +1,111 @@
-import 'package:device_preview/device_preview.dart';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/app_background.dart';
+import 'package:frontend/controllers/language_controller.dart';
+import 'package:frontend/locator.dart';
+import 'package:frontend/themes/app_theme.dart';
+import 'package:get/get.dart';
+import 'routes/app_pages.dart';
+import 'routes/app_routes.dart';
+import 'localization/app_translation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/gestures.dart'; 
+import 'package:get_storage/get_storage.dart';
+import 'package:device_preview/device_preview.dart';
 
-void main() {
-  runApp(
-    DevicePreview(enabled: !kReleaseMode, builder: (context) => const MyApp()),
-  );
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: "assets/.env");
+  await _initConfig();
+
+  _initStorage();
+  
+  await GetStorage.init();
+  setupLocator();
+
+  Get.put(LanguageController());
+ 
+
+  runApp(const MyApp());
+
+  // runApp(
+  //   DevicePreview(
+  //     enabled: !kReleaseMode,
+  //     builder: (context) => const MyApp(),
+  //   ),
+  // );
+}
+
+Future<void> _initConfig() async {
+  await dotenv.load(fileName: "assets/.env");
+}
+
+Future<void> _initStorage() async {
+  const boxName = ".appsettings";
+  if (kIsWeb) {
+    await GetStorage.init(boxName);
+  } else if (Platform.isWindows) {
+    final dir = "${Directory.current.path}\\.config";
+    final directory = Directory(dir);
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+    await GetStorage(".appsettings", dir).initStorage;
+  } else {
+    await GetStorage.init(boxName);
+  }
+}
+
+class _CustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+  };
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+    final languageController = Get.put(LanguageController());
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.isEnabled(context)
+          ? DevicePreview.locale(context)
+          : languageController.locale.value,
+      fallbackLocale: const Locale("en", "US"),
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+      scrollBehavior: _CustomScrollBehavior(),
+      initialRoute: AppRoutes.landing,
+      getPages: AppPages.pages,
 
-  final String title;
+      translations: AppTranslation(),
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+      transitionDuration: const Duration(milliseconds: 0),
+      defaultTransition: Transition.noTransition,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.light,
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      builder: (context, child) {
+        return DevicePreview.appBuilder(
+          context,
+          Stack(
+            children: [
+              const AppBackground(child: SizedBox.expand()),
+              child ?? const SizedBox(),
+            ],
+          ),
+        );
+      },
     );
   }
 }
