@@ -137,7 +137,7 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [x] `shops`
 - [x] `users`
 - [x] `categories`
-- [ ] `products`
+- [x] `products` (migate and model)
 - [ ] `product_variants`
 - [ ] `product_ingredients`
 - [ ] `ingredients`
@@ -194,11 +194,11 @@ row would keep reserving the name and block re-creating it. Since
 `products.category_id` references this table, DELETE on a category that still
 has products returns 409 rather than cascading.
 
-`products`: `id`, `shop_id`, `category_id`, `name`, `sku`, nullable
-`description` and `image_url`, `is_available`, `sort_order`, timestamps, soft
-deletes. Unique `(shop_id, sku)`.
+`products`: `id`, `shop_id`, `category_id`, `name`, nullable
+`description` and `image_path`, `is_available`, `sort_order`, timestamps, soft
+deletes. Unique `(shop_id, name)`.
 
-`product_variants`: `id`, `product_id`, `name`, `sku`, `price DECIMAL(12,2)`,
+`product_variants`: `id`, `product_id`, `name`, `price DECIMAL(12,2)`,
 `is_default`, `is_available`, timestamps. Unique `(product_id, sku)`.
 
 `product_ingredients`: `product_variant_id`, `ingredient_id`,

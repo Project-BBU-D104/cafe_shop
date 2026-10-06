@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "cafe_shop",
+			"path": "."
+		},
+		{
+			"name": "flutter_app",
+			"path": "flutter_app"
+		},
+		{
+			"name": "laravel_api",
+			"path": "laravel_api"
+		}
+	],
+	"settings": {}
+}
