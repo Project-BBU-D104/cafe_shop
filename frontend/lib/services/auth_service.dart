@@ -5,25 +5,29 @@ class AuthService {
   final ApiService _api = ApiService();
 
   Future<Map<String, dynamic>> login({
-    required String name,
+    required String email,
     required String password,
   }) async {
     final response = await _api.post(
       "auth/login",
       {
-        "name": name,
+        "email": email,
         "password": password,
       },
 
     );
 
     final data = Map<String, dynamic>.from(response);
+
+    final loginData = Map<String, dynamic>.from(data['data']);
+
+     final token = loginData['token'];
     
-    if (data.containsKey('access_token')) {
+    if (token != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['access_token']);
+      await prefs.setString('token', token);
     }
 
-    return data;
+    return loginData;
   }
 }
