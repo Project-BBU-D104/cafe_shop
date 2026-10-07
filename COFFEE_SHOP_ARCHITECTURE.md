@@ -56,7 +56,9 @@ laravel_api/
 │   │   ├── Requests/
 │   │   │   ├── LoginRequest.php
 │   │   │   ├── StoreCategoryRequest.php
+│   │   │   ├── StoreProductRequest.php
 │   │   │   ├── UpdateCategoryRequest.php
+│   │   │   ├── UpdateProductRequest.php
 │   │   │   ├── StoreProductVariantRequest.php
 │   │   │   ├── StoreProductIngredientRequest.php
 │   │   │   ├── StoreIngredientRequest.php
@@ -137,7 +139,7 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [x] `shops`
 - [x] `users`
 - [x] `categories`
-- [x] `products` (migate and model)
+- [x] `products` 
 - [ ] `product_variants`
 - [ ] `product_ingredients`
 - [ ] `ingredients`
