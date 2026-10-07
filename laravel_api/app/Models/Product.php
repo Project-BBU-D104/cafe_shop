@@ -8,21 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['shop_id', 'category_id', 'name', 'description', 'image_path', 'is_available', 'sort_order'])]
-
 class Product extends Model
 {
-    //
     protected function casts(): array
     {
         return [
             'is_available' => 'boolean',
             'sort_order' => 'integer',
         ];
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
     }
 
     public function category(): BelongsTo
