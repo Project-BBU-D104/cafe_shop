@@ -60,6 +60,7 @@ laravel_api/
 │   │   │   ├── UpdateCategoryRequest.php
 │   │   │   ├── UpdateProductRequest.php
 │   │   │   ├── StoreProductVariantRequest.php
+│   │   │   ├── UpdateProductVariantRequest.php
 │   │   │   ├── StoreProductIngredientRequest.php
 │   │   │   ├── StoreIngredientRequest.php
 │   │   │   ├── StoreInventoryMovementRequest.php
@@ -201,14 +202,14 @@ has products returns 409 rather than cascading.
 deletes. Unique `(shop_id, name)`.
 
 `product_variants`: `id`, `product_id`, `name`, `price DECIMAL(12,2)`,
-`is_default`, `is_available`, timestamps. Unique `(product_id, sku)`.
+`is_default`, `is_available`, timestamps. Unique `(product_id, name)`.
 
 `product_ingredients`: `product_variant_id`, `ingredient_id`,
 `quantity DECIMAL(12,3)`, `unit`. Unique `(product_variant_id, ingredient_id)`.
 
 ### Inventory
 
-`ingredients`: `id`, `shop_id`, `name`, nullable `sku`, `unit`,
+`ingredients`: `id`, `shop_id`, `name`, `unit`,
 `current_stock DECIMAL(12,3)`, `minimum_stock DECIMAL(12,3)`,
 `cost_per_unit DECIMAL(12,4)`, `is_active`, timestamps, soft deletes. Unique
 `(shop_id, name)`.
@@ -223,8 +224,7 @@ create a `stock_alerts` table until the UI needs persistent acknowledgement.
 
 ### POS and orders
 
-`shop_tables`: `id`, `shop_id`, `name`, `capacity`, `status ENUM(available,
-occupied, reserved, disabled)`, timestamps. Unique `(shop_id, name)`.
+`shop_tables`: `id`, `shop_id`, `name`, `capacity`, `status ENUM(available, occupied, reserved, disabled)`, timestamps. Unique `(shop_id, name)`.
 
 `orders`:
 
