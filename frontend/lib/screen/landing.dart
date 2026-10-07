@@ -58,7 +58,7 @@ class LandingScreen
                     25,
                   ),
                   child: Image.asset(
-                    "assets/icon/logo.png",
+                    "assets/icon/icon.png",
                     fit: BoxFit.cover,
                   ),
                 ),

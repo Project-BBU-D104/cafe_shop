@@ -36,6 +36,11 @@ class HomeScreen extends StatelessWidget {
                       label: Text('Manage'.tr),
                     ),
                     NavigationRailDestination(
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                      selectedIcon: const Icon(Icons.shopping_cart),
+                      label: Text('Order'.tr),
+                    ),
+                    NavigationRailDestination(
                       icon: const Icon(Icons.receipt_long_outlined),
                       selectedIcon: const Icon(Icons.receipt_long),
                       label: Text('Report'.tr),
@@ -82,6 +87,11 @@ class HomeScreen extends StatelessWidget {
                     icon: const Icon(Icons.shopping_bag_outlined),
                     selectedIcon: const Icon(Icons.shopping_bag),
                     label: 'Manage'.tr,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.shopping_cart_outlined),
+                    selectedIcon: const Icon(Icons.shopping_cart),
+                    label: 'Order'.tr,
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.receipt_long_outlined),

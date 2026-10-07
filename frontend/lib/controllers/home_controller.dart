@@ -3,6 +3,7 @@ import 'package:frontend/global.dart';
 import 'package:frontend/routes/app_routes.dart';
 import 'package:frontend/screen/home/home_content.dart';
 import 'package:frontend/screen/manage/manage_screen.dart';
+import 'package:frontend/screen/order/order_screen.dart';
 import 'package:frontend/screen/profile/profile_screen.dart';
 import 'package:frontend/screen/report/report_screen.dart';
 import 'package:get/get.dart';
@@ -55,6 +56,7 @@ class HomeController extends GetxController{
   List<Widget> get tabPages => [
     HomeContent(),
     ManageScreen(),
+    OrderScreen(),
     ReportScreen(),
     ProfileScreen(),
   ];

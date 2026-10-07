@@ -20,9 +20,8 @@ Future<void> main() async {
   await dotenv.load(fileName: "assets/.env");
   await _initConfig();
 
-  _initStorage();
+ await  _initStorage();
   
-  await GetStorage.init();
   setupLocator();
 
   Get.put(LanguageController());
@@ -43,19 +42,8 @@ Future<void> _initConfig() async {
 }
 
 Future<void> _initStorage() async {
-  const boxName = ".appsettings";
-  if (kIsWeb) {
-    await GetStorage.init(boxName);
-  } else if (Platform.isWindows) {
-    final dir = "${Directory.current.path}\\.config";
-    final directory = Directory(dir);
-    if (!directory.existsSync()) {
-      directory.createSync(recursive: true);
-    }
-    await GetStorage(".appsettings", dir).initStorage;
-  } else {
-    await GetStorage.init(boxName);
-  }
+    await GetStorage.init(".appsettings");
+   
 }
 
 class _CustomScrollBehavior extends MaterialScrollBehavior {

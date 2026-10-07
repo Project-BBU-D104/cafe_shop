@@ -11,19 +11,13 @@ class ManageController extends GetxController{
 
   final List<Map<String, dynamic>> sections = [   
     {
-      "title": "Shop Management",
+      "title": "Shift Management",
       "items": [
         {
           "title": "Shift Management",
           "subtitle": "Shift Management",
           "icon": Icons.access_time_outlined,
           "route": AppRoutes.shift,
-        },
-        {
-          "title": "Shop",
-          "subtitle": "Product Management",
-          "icon": Icons.inventory_2_outlined,
-          "route": AppRoutes.product,
         },
       ]
     },

@@ -12,6 +12,8 @@ class ApiService {
     final loginData = storage.lastUserLoginRead;
     final token = loginData["token"];
 
+    print(token);
+
     return {
       "Content-Type": "application/json",
       "Accept": "application/json",
