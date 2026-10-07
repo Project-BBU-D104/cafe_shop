@@ -11,6 +11,23 @@ class ManageController extends GetxController{
 
   final List<Map<String, dynamic>> sections = [   
     {
+      "title": "Shop Management",
+      "items": [
+        {
+          "title": "Shift Management",
+          "subtitle": "Shift Management",
+          "icon": Icons.access_time_outlined,
+          "route": AppRoutes.shift,
+        },
+        {
+          "title": "Shop",
+          "subtitle": "Product Management",
+          "icon": Icons.inventory_2_outlined,
+          "route": AppRoutes.product,
+        },
+      ]
+    },
+    {
       "title": "Product Management",
       "items": [
         {
@@ -24,6 +41,34 @@ class ManageController extends GetxController{
           "subtitle": "Product Management",
           "icon": Icons.inventory_2_outlined,
           "route": AppRoutes.product,
+        },
+      ]
+    },
+    {
+      "title": "Inventory Management",
+      "items": [
+        {
+          "title": "Inventory Movements",
+          "subtitle": "Inventory Movements",
+          "icon": Icons.category_outlined,
+          "route": AppRoutes.inventoryMovements,
+        },
+      ]
+    },
+    {
+      "title": "System Configuration Management",
+      "items": [
+        {
+          "title": "User Management",
+          "subtitle": "User Management",
+          "icon": Icons.person_outlined,
+          "route": AppRoutes.user,
+        },
+        {
+          "title": "Settings",
+          "subtitle": "System Settings",
+          "icon": Icons.settings_outlined,
+          "route": AppRoutes.settings,
         }
       ]
     },

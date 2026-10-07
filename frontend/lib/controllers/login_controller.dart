@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController{
 
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final emailController = TextEditingController(text:"owner@example.com");
+  final passwordController = TextEditingController(text:"password123");
 
   final AuthService _authService = AuthService();
 
