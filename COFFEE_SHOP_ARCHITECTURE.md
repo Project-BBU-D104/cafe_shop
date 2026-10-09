@@ -57,16 +57,18 @@ laravel_api/
 │   │   │   ├── LoginRequest.php
 │   │   │   ├── StoreCategoryRequest.php
 │   │   │   ├── StoreProductRequest.php
-│   │   │   ├── UpdateCategoryRequest.php
-│   │   │   ├── UpdateProductRequest.php
-│   │   │   ├── StoreProductVariantRequest.php
-│   │   │   ├── UpdateProductVariantRequest.php
 │   │   │   ├── StoreProductIngredientRequest.php
+│   │   │   ├── StoreProductVariantRequest.php
 │   │   │   ├── StoreIngredientRequest.php
 │   │   │   ├── StoreInventoryMovementRequest.php
 │   │   │   ├── StoreOrderRequest.php
-│   │   │   ├── UpdateOrderStatusRequest.php
 │   │   │   ├── StorePaymentRequest.php
+│   │   │   ├── StoreStaffRequest.php
+│   │   │   ├── UpdateStaffRequest.php
+│   │   │   ├── UpdateCategoryRequest.php
+│   │   │   ├── UpdateProductRequest.php
+│   │   │   ├── UpdateProductVariantRequest.php
+│   │   │   ├── UpdateOrderStatusRequest.php
 │   │   │   └── UpdateSettingsRequest.php
 │   │   └── Resources/
 │   │       ├── OrderResource.php
@@ -78,6 +80,7 @@ laravel_api/
 │   │       ├── ShopTableResource.php
 │   │       ├── PaymentResource.php
 │   │       ├── StaffResource.php
+│   │       ├── StaffProfileResource.php
 │   │       ├── ShiftResource.php
 │   │       ├── SettingResource.php
 │   │       ├── ReportResource.php
@@ -150,7 +153,7 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [ ] `order_items`
 - [ ] `payments`
 - [ ] `order_status_histories`
-- [ ] `staff_profiles`
+- [x] `staff_profiles`
 - [ ] `shifts`
 - [ ] `settings`
 

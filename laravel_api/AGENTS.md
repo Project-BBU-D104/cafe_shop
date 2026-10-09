@@ -40,6 +40,10 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - You must only create documentation files if explicitly requested by the user.
 
+## Git
+
+- Never commit or push before the user has reviewed the changes. Stage the work, present a summary of the diff, and wait for explicit approval to commit.
+
 ## Replies
 
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
