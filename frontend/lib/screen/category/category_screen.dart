@@ -156,7 +156,9 @@ class CategoryScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          cateCtr.onAddCategory(context);
+        },
         child: const Icon(Icons.add)
       ),
     );

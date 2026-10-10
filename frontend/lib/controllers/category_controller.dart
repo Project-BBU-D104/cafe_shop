@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/screen/category/widget/add_category_widget.dart';
 import 'package:frontend/services/main_service/category_service.dart';
+import 'package:frontend/widget/bottom_sheets.dart';
 import 'package:frontend/widget/toast_widget.dart';
+import 'package:frontend/helper/confirm_dialog_helper.dart';
 import 'package:get/get.dart';
 
 class CategoryController extends GetxController{
@@ -36,5 +40,12 @@ class CategoryController extends GetxController{
     }finally{
       isLoading.value = false;
     }
+  }
+
+  void onAddCategory(BuildContext context){
+    AppBottomSheets.show(
+      context,
+      child: AddCategoryWidget()
+    );
   }
 }
