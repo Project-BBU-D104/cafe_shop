@@ -39,7 +39,7 @@ class StorageService implements IStorageService {
   @override
   Future<void> writeStorage(StorageKey key, dynamic value) async {
     final vkey = key.toString().split('.').last; // Output: active
-    _box.write(vkey, value);
+    await _box.write(vkey, value);
   }
 
   ///method remove storage key
@@ -59,7 +59,7 @@ class StorageService implements IStorageService {
   ///method remove storage key
   Future<void> _removeStorage(StorageKey key) async {
     final vkey = key.toString().split('.').last; // Output: active
-    _box.remove(vkey);
+    await _box.remove(vkey);
   }
 
   @override

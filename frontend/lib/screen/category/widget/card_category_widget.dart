@@ -1,25 +1,41 @@
+
 import 'package:flutter/material.dart';
 
 class CardCategoryWidget extends StatelessWidget {
-  final String name;
-  final String description;
-  final int sortOrder;
-  final bool isActive;
+  final Map<String, dynamic> category;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const CardCategoryWidget({
     super.key,
-    required this.name,
-    required this.description,
-    required this.sortOrder,
-    required this.isActive,
+    required this.category,
     this.onEdit,
     this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
+    final String name =
+        (category['name'] ?? '').toString();
+
+    final String description =
+        (category['description'] ?? '').toString();
+
+    final int sortOrder = int.tryParse(
+          (category['sortOrder'] ?? category['sort_order'] ?? 0)
+              .toString(),
+        ) ??
+        0;
+
+    final dynamic activeValue =
+        category['isActive'] ?? category['is_active'];
+
+    final bool isActive =
+        activeValue == true ||
+        activeValue == 1 ||
+        activeValue == '1' ||
+        activeValue == 'true';
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -31,7 +47,6 @@ class CardCategoryWidget extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Category icon
             Container(
               width: 48,
               height: 48,
@@ -45,24 +60,19 @@ class CardCategoryWidget extends StatelessWidget {
                 size: 26,
               ),
             ),
-
             const SizedBox(width: 12),
-
-            // Category information
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    name.isEmpty ? 'Unnamed category' : name,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
                   Text(
                     description.isEmpty
                         ? 'No description'
@@ -74,12 +84,12 @@ class CardCategoryWidget extends StatelessWidget {
                       color: Colors.grey.shade600,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
-                  Row(
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      // Status
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -102,9 +112,6 @@ class CardCategoryWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      const SizedBox(width: 10),
-
                       Text(
                         'Order: $sortOrder',
                         style: TextStyle(
@@ -117,16 +124,12 @@ class CardCategoryWidget extends StatelessWidget {
                 ],
               ),
             ),
-
-            // More menu
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               onSelected: (value) {
                 if (value == 'edit') {
                   onEdit?.call();
-                }
-
-                if (value == 'delete') {
+                } else if (value == 'delete') {
                   onDelete?.call();
                 }
               },

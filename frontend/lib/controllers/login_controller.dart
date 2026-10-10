@@ -31,17 +31,22 @@ class LoginController extends GetxController{
         password: passwordController.text,
       );
 
-       
- 
+      final token = result["token"]?.toString();
+      if (token == null || token.isEmpty) {
+        throw StateError("The login response did not include an access token.");
+      }
+
       await storage.lastUserLoginWrite(
         data: {
-          "token": result["token"],
+          "token": token,
           "token_type": "Bearer Token",
           "user": result["user"],
         },
       );
 
-      print(result["token_type"]);
+      if (storage.lastUserLoginRead["token"] != token) {
+        throw StateError("Could not save the login session.");
+      }
 
       await storage.appStartUpWrite(route: "/home");
   

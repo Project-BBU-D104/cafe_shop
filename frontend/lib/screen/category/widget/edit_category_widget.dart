@@ -4,8 +4,9 @@ import 'package:frontend/constants/constant.dart';
 import 'package:frontend/controllers/category_controller.dart';
 import 'package:get/get.dart';
 
-class AddCategoryWidget extends StatelessWidget {
-  AddCategoryWidget({super.key});
+class EditCategoryWidget extends StatelessWidget {
+  final int categoryId;
+  EditCategoryWidget({super.key, required this.categoryId});
 
   final CategoryController ctr = Get.find<CategoryController>();
 
@@ -153,7 +154,9 @@ class AddCategoryWidget extends StatelessWidget {
                         : () {
                             if (_formKey.currentState!.validate()) {
                               FocusScope.of(context).unfocus();
-                              ctr.onSaveCategory();
+                              ctr.onUpdateCategory(
+                                categoryId
+                              );
                             }
                           },
                     child: ctr.isLoading.value
