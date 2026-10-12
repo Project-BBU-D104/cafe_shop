@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 class TableNumberController extends GetxController{
+  
   final isLoading = false.obs;
 
   @override
