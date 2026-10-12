@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/report_controller.dart';
 import 'package:frontend/widget/card_feature_widget.dart';
+import 'package:frontend/widget/custom_app_bar.dart';
 import 'package:frontend/widget/search_feature_widget.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +14,11 @@ class ReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      appBar: CustomAppBar(
+        title: "Report".tr,
+        showBack: false,
+        onBack: () => Get.back(),
+      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -22,7 +28,7 @@ class ReportScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  SearchFeatureWidget(title: "Search Function".tr,
+                  SearchFeatureWidget(title: "Search Report".tr,
                     ctr: controller.searchCtr,
                   ),
 
