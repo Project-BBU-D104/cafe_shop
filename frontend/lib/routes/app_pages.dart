@@ -1,8 +1,11 @@
 import 'package:frontend/controllers/landing_controller.dart';
 import 'package:frontend/screen/auth/login_screen.dart';
 import 'package:frontend/screen/home/home_screen.dart';
+import 'package:frontend/screen/ingredient/ingredient_screen.dart';
+import 'package:frontend/screen/product_variant/product_variant_screen.dart';
 import 'package:frontend/screen/report/report_screen.dart';
 import 'package:frontend/screen/report/sale_report/sales_report_screen.dart';
+import 'package:frontend/screen/table/table_number_screen.dart';
 import 'package:get/get.dart';
 import 'app_routes.dart';
 import 'package:frontend/screen/landing.dart';
@@ -60,6 +63,19 @@ class AppPages {
     GetPage(
       name: AppRoutes.shift,
       page: () => ShiftScreen(),
+    ),
+
+    GetPage(
+      name: AppRoutes.tableNumber,
+      page: () => TableNumberScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.productVariant,
+      page: () => ProductVariantScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.ingredient,
+      page: () => IngredientScreen(),
     ),
 
 

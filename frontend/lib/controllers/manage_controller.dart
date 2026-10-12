@@ -36,6 +36,18 @@ class ManageController extends GetxController{
           "icon": Icons.inventory_2_outlined,
           "route": AppRoutes.product,
         },
+        {
+          "title": "Product Variant",
+          "subtitle": "Product Variant Management",
+          "icon": Icons.inventory_2_outlined,
+          "route": AppRoutes.productVariant,
+        },
+        {
+          "title": "Ingredient",
+          "subtitle": "Ingredient Management",
+          "icon": Icons.inventory_2_outlined,
+          "route": AppRoutes.ingredient,
+        },
       ]
     },
     {
@@ -57,6 +69,12 @@ class ManageController extends GetxController{
           "subtitle": "User Management",
           "icon": Icons.person_outlined,
           "route": AppRoutes.user,
+        },
+        {
+          "title": "Table Number",
+          "subtitle": "Table Number Management",
+          "icon": Icons.table_bar_outlined,
+          "route": AppRoutes.tableNumber,
         },
         {
           "title": "Settings",

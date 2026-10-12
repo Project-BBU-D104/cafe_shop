@@ -17,6 +17,10 @@ class AppRoutes {
 
   static const inventoryMovements = '/inventory-movements';
 
+  static const tableNumber = '/table-number';
+  static const productVariant = '/product-variant';
+  static const ingredient = '/ingredient';
+
   static const saleReport = '/sale-report';
 
 }
