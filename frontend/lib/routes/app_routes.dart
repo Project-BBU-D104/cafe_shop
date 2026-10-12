@@ -17,4 +17,6 @@ class AppRoutes {
 
   static const inventoryMovements = '/inventory-movements';
 
+  static const saleReport = '/sale-report';
+
 }

@@ -7,12 +7,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBack;
   final VoidCallback? onBack;
+  final List<Widget>? actions;
+  final bool centerTitle ;
+   final VoidCallback? onRefresh;
+  final bool showRefresh;
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.showBack = true,
     this.onBack,
+    this.actions,
+    this.centerTitle = true,
+    this.onRefresh,
+    this.showRefresh = false,
   });
 
   @override
@@ -41,6 +49,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
+      actions: [
+        if (showRefresh)
+          IconButton(
+            tooltip: 'Refresh',
+            icon: Icon(
+              Icons.refresh,
+              color: darkColor,
+            ),
+            onPressed: onRefresh,
+          ),
+
+        ...?actions,
+      ],
     );
   }
 
