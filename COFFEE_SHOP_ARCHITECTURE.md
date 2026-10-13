@@ -148,7 +148,6 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [ ] `product_ingredients`
 - [x] `ingredients`
 - [ ] `inventory_movements`
-- [ ] `shop_tables`
 - [ ] `orders`
 - [ ] `order_items`
 - [ ] `payments`
@@ -156,6 +155,7 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [x] `staff_profiles`
 - [ ] `shifts`
 - [ ] `settings`
+- [ ] `shop_tables` (optional for dine-in)
 
 ### Identity and shop
 
@@ -227,7 +227,7 @@ create a `stock_alerts` table until the UI needs persistent acknowledgement.
 
 ### POS and orders
 
-`shop_tables`: `id`, `shop_id`, `name`, `capacity`, `status ENUM(available, occupied, reserved, disabled)`, timestamps. Unique `(shop_id, name)`.
+`shop_tables`: `id`, `shop_id`, `name`, `capacity`, `status ENUM(available, occupied, reserved, disabled)`, timestamps. Unique `(shop_id, name)`. (Optional)
 
 `orders`:
 

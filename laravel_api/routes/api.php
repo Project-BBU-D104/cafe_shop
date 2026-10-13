@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\IngredientController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProductVariantController;
 use App\Http\Controllers\Api\V1\StaffController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
@@ -28,5 +29,7 @@ Route::prefix('v1')->group(function (): void {
         Route::apiResource('staff', StaffController::class)
             ->except(['show'])
             ->middleware('role:owner,admin');
+        // Owners and admins can create users (e.g. to onboard staff) in their own shop only.
+        Route::post('users', [UserController::class, 'store'])->middleware('role:owner,admin');
     });
 });
