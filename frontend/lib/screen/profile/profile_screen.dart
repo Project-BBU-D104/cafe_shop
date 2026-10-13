@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants/constant.dart';
 import 'package:frontend/controllers/profile_controller.dart';
 import 'package:frontend/screen/profile/widget/card_personal_info_widget.dart';
 import 'package:frontend/screen/profile/widget/card_profile_widget.dart';
@@ -42,8 +43,8 @@ class ProfileScreen extends StatelessWidget {
                     },
                     label: Text("Logout".tr),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 251, 158, 151),
-                      foregroundColor: const Color.fromARGB(255, 112, 39, 39),
+                      backgroundColor: dangerColor,
+                      foregroundColor: titleColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),

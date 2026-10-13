@@ -28,6 +28,7 @@ class SearchWidget extends StatelessWidget {
         controller: ctr.textController,
 
         decoration: InputDecoration(
+        filled: false,
         hintText: title.tr,
 
         prefixIcon: const Icon(Icons.search),

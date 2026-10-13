@@ -51,12 +51,12 @@ class CardCategoryWidget extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: const Color(0xFFFFEEE8),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.category_outlined,
-                color: Colors.blue.shade700,
+                color: const Color(0xff35180C),
                 size: 26,
               ),
             ),

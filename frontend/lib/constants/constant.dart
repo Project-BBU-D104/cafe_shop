@@ -1,14 +1,16 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 
-final MaterialColor primarySwatch = Colors.pink;
-final Color appColor = Colors.pink;
+final MaterialColor primarySwatch =
+    createMaterialColor(HexColor.fromHex("#35180C"));
+final Color appColor =
+    createMaterialColor(HexColor.fromHex("#35180C"));
 final Color titleColor = Colors.white;
 
 final MaterialColor primaryColor =
-    createMaterialColor(HexColor.fromHex("#007bff"));
+    createMaterialColor(HexColor.fromHex("#35180C"));
 final MaterialColor secondaryColor =
-    createMaterialColor(HexColor.fromHex("#f3f3f3"));
+    createMaterialColor(HexColor.fromHex("#FFF0EB"));
 final MaterialColor successColor =
     createMaterialColor(HexColor.fromHex("#28a745"));
 final MaterialColor dangerColor =
@@ -16,11 +18,11 @@ final MaterialColor dangerColor =
 final MaterialColor warningColor =
     createMaterialColor(HexColor.fromHex("#ffc107"));
 final MaterialColor infoColor =
-    createMaterialColor(HexColor.fromHex("#17a2b8"));
+    createMaterialColor(HexColor.fromHex("#9A4D21"));
 final MaterialColor lightColor =
-    createMaterialColor(HexColor.fromHex("#f5f5f5"));
+    createMaterialColor(HexColor.fromHex("#FFF9F7"));
 final MaterialColor darkColor =
-    createMaterialColor(HexColor.fromHex("#000000"));
+    createMaterialColor(HexColor.fromHex("#24130C"));
 
 final MaterialColor whiteColor =
     createMaterialColor(HexColor.fromHex("#ffffff"));

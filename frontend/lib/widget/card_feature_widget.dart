@@ -37,7 +37,7 @@ class CardFeatureWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            Icon(icon, size: 28),
+            Icon(icon, size: 28, color: const Color(0xff35180C)),
 
             const SizedBox(height: 8),
 

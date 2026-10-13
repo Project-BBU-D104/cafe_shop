@@ -75,7 +75,7 @@ Widget cardInfo({
         color: Theme.of(Get.context!).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.shade300,
+          color: const Color(0xffEADDD6),
         ),
       ),
       child: Row(

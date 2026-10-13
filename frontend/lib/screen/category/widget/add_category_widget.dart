@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:frontend/constants/constant.dart';
 import 'package:frontend/controllers/category_controller.dart';
 import 'package:get/get.dart';
 
@@ -145,7 +144,6 @@ class AddCategoryWidget extends StatelessWidget {
                 child: Obx(
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: successColor,
                       foregroundColor: Colors.white,
                     ),
                     onPressed: ctr.isLoading.value

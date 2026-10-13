@@ -135,7 +135,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   Widget sectionTitle(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: Colors.blue),
+        Icon(icon, color: const Color(0xff35180C)),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
@@ -304,7 +304,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     value:
                         '\$${currencyFormat.format(totalSales)}',
                     
-                    color: Colors.green,
+                    color: const Color(0xff35180C),
                   ),
                 ),
                 SizedBox(
@@ -313,7 +313,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     title: 'Total Orders',
                     value: '$totalOrders',
                    
-                    color: Colors.blue,
+                    color: const Color(0xff9A4D21),
                   ),
                 ),
                 SizedBox(
@@ -322,7 +322,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     title: 'Average Order',
                     value:
                         '\$${currencyFormat.format(averageOrderValue)}',
-                    color: Colors.orange,
+                    color: const Color(0xff6F4E37),
                   ),
                 ),
               ],
@@ -436,13 +436,13 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                       spots: spots,
                       isCurved: true,
                       barWidth: 3,
-                      color: Colors.blue,
+                      color: const Color(0xff35180C),
                       dotData: const FlDotData(
                         show: true,
                       ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.blue.withValues(
+                        color: const Color(0xff35180C).withValues(
                           alpha: 0.15,
                         ),
                       ),
@@ -594,7 +594,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         actions: [
           IconButton(
             tooltip: 'Reset filters',
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Color(0xff24130C)),
             onPressed: () {
               setState(() {
                 startDate = DateTime(2026, 10, 1);

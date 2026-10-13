@@ -68,10 +68,10 @@ Widget cardInfo({
     width: double.infinity,
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: const Color(0xFFF8FAFC),
+      color: const Color(0xFFFFF0EB),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(
-        color: Colors.grey.shade300,
+        color: const Color(0xffEADDD6),
       ),
     ),
     child: Text(

@@ -26,7 +26,7 @@ class DialogSelectLanguageWidget extends StatelessWidget {
               const Icon(
                 Icons.language_rounded,
                 size: 50,
-                color: Colors.blue,
+                color: Color(0xff35180C),
               ),
 
               const SizedBox(height: 12),
@@ -99,12 +99,12 @@ class DialogSelectLanguageWidget extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected
-              ? Colors.blue.shade50
+              ? const Color(0xFFFFF0EB)
               : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
-                ? Colors.blue
+                ? const Color(0xff35180C)
                 : Colors.grey.shade300,
             width: selected ? 2 : 1,
           ),
@@ -147,7 +147,7 @@ class DialogSelectLanguageWidget extends StatelessWidget {
               child: selected
                   ? const CircleAvatar(
                       radius: 13,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Color(0xff35180C),
                       child: Icon(
                         Icons.check,
                         size: 18,
