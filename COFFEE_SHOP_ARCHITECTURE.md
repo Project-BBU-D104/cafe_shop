@@ -289,130 +289,12 @@ Order 1──* OrderItems, Payments, StatusHistories
 User 1──* Orders and Shifts
 ```
 
-## API v1
+## API documentation
 
-Base URL: `/api/v1`. Protected routes use Sanctum bearer authentication.
-
-### Authentication
-
-| Method | URL | Purpose | Access |
-|---|---|---|---|
-| POST | `/auth/login` | Issue token | Public |
-| POST | `/auth/logout` | Revoke current token | Authenticated |
-| GET | `/auth/me` | Current user | Authenticated |
-
-### Catalog and inventory
-
-| Method | URL | Purpose | Roles |
-|---|---|---|---|
-| GET | `/categories` | Active categories | Auth |
-| POST/PATCH/DELETE | `/categories[/{id}]` | Manage categories | owner, admin, manager |
-| GET | `/products` | Filtered available products | Auth |
-| POST/PATCH/DELETE | `/products[/{id}]` | Manage products | owner, admin, manager |
-| GET | `/products/{id}` | Product detail | Auth |
-| GET/POST | `/products/{id}/variants` | List/create product variants | owner, admin, manager |
-| PATCH/DELETE | `/variants/{id}` | Update/delete a product variant | owner, admin, manager |
-| GET/POST | `/variants/{variant}/ingredients` | List/add recipe ingredients | owner, admin, manager |
-| PATCH/DELETE | `/variants/{variant}/ingredients/{ingredient}` | Update/delete a recipe ingredient | owner, admin, manager |
-| GET | `/ingredients` | Stock and low-stock state | owner, admin, manager |
-| POST | `/ingredients` | Create ingredient | owner, admin, manager |
-| POST | `/ingredients/{id}/movements` | Record stock movement | owner, admin, manager |
-| GET | `/inventory/movements` | Movement history | owner, admin, manager |
-
-Throttle `POST /auth/login` (for example, `throttle:5,1`) so repeated failed
-attempts return `429`.
-
-### POS
-
-| Method | URL | Purpose | Roles |
-|---|---|---|---|
-| GET | `/tables` | Table availability | Auth |
-| PATCH | `/tables/{id}/status` | Update table status | owner, admin, manager, cashier |
-| GET | `/orders` | Paginated orders; cashiers see all orders in their shop | Auth |
-| POST | `/orders` | Create order | owner, admin, manager, cashier |
-| GET | `/orders/{id}` | Order detail | Auth |
-| PATCH | `/orders/{id}/status` | Valid status transition | owner, admin, manager, cashier |
-| POST | `/orders/{id}/pay` | Record payment; reject with `409` if already paid and validate amount equals the order total | owner, admin, manager, cashier |
-| POST | `/orders/{id}/cancel` | Cancel order | owner, admin, manager |
-
-Creating a `dine_in` order sets its table to `occupied`; when the order reaches
-`completed` or `cancelled`, the table returns to `available`. A POS-created
-order always has `user_id`; it may be nullable only for manual/back-office
-orders.
-
-### Staff and reports
-
-| Method | URL | Purpose | Roles |
-|---|---|---|---|
-| GET/POST | `/staff` | List/create staff | owner, admin |
-| PATCH/DELETE | `/staff/{id}` | Update/deactivate staff | owner, admin |
-| POST | `/shifts/start` | Start shift; a user may have at most one open shift (`ended_at IS NULL`), otherwise return `409` | cashier, manager |
-| POST | `/shifts/{id}/close` | Close shift | cashier, manager |
-| GET | `/shifts` | Shift history | owner, admin, manager |
-| GET | `/reports/sales` | Sales by date range | owner, admin, manager |
-| GET | `/reports/best-sellers` | Best sellers | owner, admin, manager |
-| GET | `/reports/staff-revenue` | Revenue by staff | owner, admin, manager |
-| GET/PATCH | `/settings` | Read/update settings | owner, admin |
-
-## Request and response contract
-
-Login:
-
-```json
-{
-  "email": "cashier@example.test",
-  "password": "secret"
-}
-```
-
-```json
-{
-  "data": {
-    "token": "sanctum-token",
-    "user": { "id": 4, "name": "Front Counter", "role": "cashier", "shop_id": 1 }
-  }
-}
-```
-
-Create order:
-
-```json
-{
-  "type": "dine_in",
-  "table_id": 3,
-  "payment_method": "cash",
-  "items": [
-    { "product_variant_id": 12, "quantity": 2 },
-    { "product_variant_id": 18, "quantity": 1 }
-  ]
-}
-```
-
-The server verifies that variants belong to the current shop and are
-available, then recalculates prices, tax, discounts, and totals. The client
-never supplies the final total as truth.
-
-Successful responses use:
-
-```json
-{ "data": {}, "meta": {} }
-```
-
-Paginated responses add `current_page`, `per_page`, and `total` to `meta`.
-
-Errors use:
-
-```json
-{
-  "message": "The given data was invalid.",
-  "errors": { "items.0.quantity": ["The quantity must be at least 1."] },
-  "code": "VALIDATION_ERROR"
-}
-```
-
-Use `401` unauthenticated, `403` forbidden, `404` missing, `409` state
-conflict, `422` validation, `429` throttled, and `500` only for unexpected
-failures. Never return stack traces, passwords, or tokens in errors.
+Current test endpoints and full local URLs are documented in
+[`API_V1.md`](API_V1.md). That file lists routes registered in Laravel today;
+it also labels planned routes that are not available to test yet. Data model
+and implementation guidance remain in this architecture document.
 
 ## Validation, authorization, and transactions
 
@@ -540,15 +422,6 @@ For the assignment, local setup only requires:
 php artisan migrate:fresh --seed
 php artisan test
 ```
-
-### Testing with Insomnia
-
-Run `php artisan serve` and point Insomnia requests at
-`http://127.0.0.1:8000/api/v1`. Set header `Accept: application/json` on
-every request, plus `Content-Type: application/json` on writes, so
-validation errors return the JSON envelope instead of an HTML page. Once
-Sanctum exists, copy the `token` from the login response into an
-`Authorization: Bearer <token>` header on protected requests.
 
 Add deployment hardening, queues, schedulers, audit logs, backups, and CI
 only if they become evaluated requirements.
