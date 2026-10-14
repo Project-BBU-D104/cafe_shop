@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\IngredientController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\ProductIngredientController;
 use App\Http\Controllers\Api\V1\ProductVariantController;
 use App\Http\Controllers\Api\V1\StaffController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -20,10 +21,20 @@ Route::prefix('v1')->group(function (): void {
     });
 
     Route::middleware('auth:sanctum')->group(function (): void {
-        Route::apiResource('categories', CategoryController::class);
-        Route::apiResource('products', ProductController::class);
-        Route::apiResource('products.variants', ProductVariantController::class);
-        Route::apiResource('ingredients', IngredientController::class);
+        // Cashiers need the menu to take orders, so category/product reads stay open
+        Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
+        Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+
+        Route::middleware('role:owner,admin,manager')->group(function (): void {
+            Route::apiResource('categories', CategoryController::class);
+            Route::apiResource('products', ProductController::class);
+            Route::apiResource('products.variants', ProductVariantController::class);
+            Route::get('variants/{variant}/ingredients', [ProductIngredientController::class, 'index']);
+            Route::post('variants/{variant}/ingredients', [ProductIngredientController::class, 'store']);
+            Route::patch('variants/{variant}/ingredients/{ingredient}', [ProductIngredientController::class, 'update']);
+            Route::delete('variants/{variant}/ingredients/{ingredient}', [ProductIngredientController::class, 'destroy']);
+            Route::apiResource('ingredients', IngredientController::class);
+        });
         // Owners and admins can manage all staff; authenticated staff can view only their own profile.
         Route::get('staff/me', [StaffController::class, 'me']);
         Route::apiResource('staff', StaffController::class)

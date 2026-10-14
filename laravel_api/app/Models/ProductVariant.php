@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['product_id', 'name', 'price', 'is_default', 'is_available'])]
 class ProductVariant extends Model
@@ -21,5 +22,15 @@ class ProductVariant extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Recipe ingredients, with the quantity/unit consumed per variant sold.
+     */
+    public function ingredients(): BelongsToMany
+    {
+        return $this->belongsToMany(Ingredient::class, 'product_ingredients')
+            ->withPivot(['quantity', 'unit'])
+            ->withTimestamps();
     }
 }

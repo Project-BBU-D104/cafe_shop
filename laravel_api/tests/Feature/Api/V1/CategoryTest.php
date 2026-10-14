@@ -87,6 +87,21 @@ class CategoryTest extends TestCase
         $this->getJson("/api/v1/categories/{$category->id}")->assertNotFound();
     }
 
+    public function test_cashiers_can_read_but_not_manage_categories(): void
+    {
+        Sanctum::actingAs(User::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Cashier',
+            'email' => 'cashier@example.com',
+            'password' => 'password',
+            'role' => UserRole::Cashier,
+            'is_active' => true,
+        ]));
+
+        $this->getJson('/api/v1/categories')->assertOk();
+        $this->postJson('/api/v1/categories', ['name' => 'Latte Art'])->assertForbidden();
+    }
+
     public function test_user_cannot_update_or_delete_another_shops_category(): void
     {
         $otherShop = Shop::create(['name' => 'Second Shop', 'code' => 'SECOND']);

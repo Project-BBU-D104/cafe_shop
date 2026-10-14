@@ -88,14 +88,12 @@ class IngredientsApiTest extends TestCase
             ->assertJsonPath('data.0.is_low_stock', true);
     }
 
-    public function test_cashiers_can_read_and_create_ingredients(): void
+    public function test_cashiers_cannot_read_or_create_ingredients(): void
     {
-        $shop = $this->authenticate(UserRole::Cashier);
+        $this->authenticate(UserRole::Cashier);
 
-        $this->getJson('/api/v1/ingredients')->assertOk();
-        $this->postJson('/api/v1/ingredients', ['name' => 'Milk', 'unit' => 'L'])->assertCreated();
-
-        $this->assertDatabaseHas('ingredients', ['shop_id' => $shop->id, 'name' => 'Milk']);
+        $this->getJson('/api/v1/ingredients')->assertForbidden();
+        $this->postJson('/api/v1/ingredients', ['name' => 'Milk', 'unit' => 'L'])->assertForbidden();
     }
 
     public function test_store_rejects_stock_values_with_excess_precision(): void
