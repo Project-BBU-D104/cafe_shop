@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\IngredientController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProductIngredientController;
 use App\Http\Controllers\Api\V1\ProductVariantController;
+use App\Http\Controllers\Api\V1\ShiftController;
 use App\Http\Controllers\Api\V1\StaffController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -42,5 +43,9 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('role:owner,admin');
         // Owners and admins can create users (e.g. to onboard staff) in their own shop only.
         Route::post('users', [UserController::class, 'store'])->middleware('role:owner,admin');
+
+        Route::post('shifts/start', [ShiftController::class, 'start'])->middleware('role:cashier,manager');
+        Route::post('shifts/{shift}/close', [ShiftController::class, 'close'])->middleware('role:cashier,manager');
+        Route::get('shifts', [ShiftController::class, 'index'])->middleware('role:owner,admin,manager');
     });
 });

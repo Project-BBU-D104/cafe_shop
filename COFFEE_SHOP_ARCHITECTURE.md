@@ -153,9 +153,9 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [ ] `payments`
 - [ ] `order_status_histories`
 - [x] `staff_profiles`
-- [ ] `shifts`
+- [x] `shifts`
 - [ ] `settings`
-- [ ] `shop_tables` (optional for dine-in)
+- [ ] `shop_tables` (optional)
 
 ### Identity and shop
 
@@ -251,13 +251,19 @@ Use unique `(shop_id, order_number)` and indexes for shop/status/date.
 
 `order_items`: `id`, `order_id`, `product_variant_id`, copied
 `product_name`, `variant_name`, `quantity`, `unit_price`,
-`discount_amount`, `line_total`, nullable notes, timestamps.
+`line_total`, nullable notes, timestamps.
 
 `payments`: `id`, `order_id`, `method`, `status`, `amount DECIMAL(12,2)`,
 nullable transaction reference and paid time, timestamps.
 
+`payments` is the ledger; `orders.payment_status`, `payment_method`, and
+`paid_at` are cached summaries updated in the same transaction. Never set them
+independently.
+
 `order_status_histories`: `id`, `order_id`, nullable `user_id`, `from_status`,
 `to_status`, nullable note, `created_at`.
+This table and `inventory_movements` are insert-only; set `UPDATED_AT = null` on
+their models.
 
 ### Staff, shifts, settings
 
@@ -266,6 +272,8 @@ hire date, hourly rate, emergency contact, timestamps.
 
 `shifts`: `id`, `shop_id`, `user_id`, `started_at`, nullable `ended_at`,
 `opening_cash`, nullable `closing_cash`, nullable notes, timestamps.
+A user may have at most one open shift (`ended_at IS NULL`); a second start
+returns `409`.
 
 `settings`: `id`, `shop_id`, `key`, nullable `value`, `type ENUM(string,
 integer, decimal, boolean, json)`, timestamps. Unique `(shop_id, key)`.
@@ -311,18 +319,26 @@ Base URL: `/api/v1`. Protected routes use Sanctum bearer authentication.
 | POST | `/ingredients/{id}/movements` | Record stock movement | owner, admin, manager |
 | GET | `/inventory/movements` | Movement history | owner, admin, manager |
 
+Throttle `POST /auth/login` (for example, `throttle:5,1`) so repeated failed
+attempts return `429`.
+
 ### POS
 
 | Method | URL | Purpose | Roles |
 |---|---|---|---|
 | GET | `/tables` | Table availability | Auth |
 | PATCH | `/tables/{id}/status` | Update table status | owner, admin, manager, cashier |
-| GET | `/orders` | Paginated orders scoped to shop/role | Auth |
+| GET | `/orders` | Paginated orders; cashiers see all orders in their shop | Auth |
 | POST | `/orders` | Create order | owner, admin, manager, cashier |
 | GET | `/orders/{id}` | Order detail | Auth |
 | PATCH | `/orders/{id}/status` | Valid status transition | owner, admin, manager, cashier |
-| POST | `/orders/{id}/pay` | Record payment | owner, admin, manager, cashier |
+| POST | `/orders/{id}/pay` | Record payment; reject with `409` if already paid and validate amount equals the order total | owner, admin, manager, cashier |
 | POST | `/orders/{id}/cancel` | Cancel order | owner, admin, manager |
+
+Creating a `dine_in` order sets its table to `occupied`; when the order reaches
+`completed` or `cancelled`, the table returns to `available`. A POS-created
+order always has `user_id`; it may be nullable only for manual/back-office
+orders.
 
 ### Staff and reports
 
@@ -330,7 +346,7 @@ Base URL: `/api/v1`. Protected routes use Sanctum bearer authentication.
 |---|---|---|---|
 | GET/POST | `/staff` | List/create staff | owner, admin |
 | PATCH/DELETE | `/staff/{id}` | Update/deactivate staff | owner, admin |
-| POST | `/shifts/start` | Start shift | cashier, manager |
+| POST | `/shifts/start` | Start shift; a user may have at most one open shift (`ended_at IS NULL`), otherwise return `409` | cashier, manager |
 | POST | `/shifts/{id}/close` | Close shift | cashier, manager |
 | GET | `/shifts` | Shift history | owner, admin, manager |
 | GET | `/reports/sales` | Sales by date range | owner, admin, manager |
@@ -420,8 +436,8 @@ When creating an order:
 2. Calculate each line and the subtotal server-side.
 3. Apply the shop tax rate and bounded discount.
 4. Create the order and snapshot items in one transaction.
-5. Deduct recipe ingredients only at the chosen business event (normally
-   completion or payment), consistently across the API.
+5. Deduct recipe ingredients when the order reaches `completed`; `cancelled`
+   orders never deduct stock.
 
 ## Minimal implementation example
 
@@ -433,9 +449,16 @@ final class OrderService
     public function create(array $data, User $user): Order
     {
         return DB::transaction(function () use ($data, $user): Order {
+            $requestedItems = collect($data['items'])
+                ->groupBy('product_variant_id')
+                ->map(fn ($lines, $variantId) => [
+                    'product_variant_id' => (int) $variantId,
+                    'quantity' => $lines->sum('quantity'),
+                ])
+                ->values();
             $variants = ProductVariant::query()
                 ->with('product')
-                ->whereIn('id', collect($data['items'])->pluck('product_variant_id'))
+                ->whereIn('id', $requestedItems->pluck('product_variant_id'))
                 ->where('is_available', true)
                 ->whereHas('product', fn ($query) => $query
                     ->where('shop_id', $user->shop_id)
@@ -444,12 +467,12 @@ final class OrderService
                 ->get()
                 ->keyBy('id');
 
-            abort_if($variants->count() !== count($data['items']), 422,
+            abort_if($variants->count() !== $requestedItems->count(), 422,
                 'One or more product variants are unavailable.');
 
             $subtotal = 0;
             $items = [];
-            foreach ($data['items'] as $input) {
+            foreach ($requestedItems as $input) {
                 $variant = $variants[$input['product_variant_id']];
                 $lineTotal = $variant->price * $input['quantity'];
                 $subtotal += $lineTotal;
