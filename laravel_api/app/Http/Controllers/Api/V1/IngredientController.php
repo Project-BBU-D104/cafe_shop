@@ -9,6 +9,7 @@ use App\Models\Ingredient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class IngredientController extends Controller
 {
@@ -36,16 +37,30 @@ class IngredientController extends Controller
             ->setStatusCode(201);
     }
 
-    public function show(Ingredient $ingredient): IngredientResource
+    public function show(Request $request, int $ingredient): IngredientResource
     {
-        return new IngredientResource($ingredient);
+        return new IngredientResource($this->ingredientForUser($request, $ingredient));
     }
 
-    public function update(StoreIngredientRequest $request, Ingredient $ingredient): IngredientResource
+    public function update(StoreIngredientRequest $request, int $ingredient): IngredientResource
     {
+        $ingredient = $this->ingredientForUser($request, $ingredient);
         $ingredient->update($request->validated());
 
         return new IngredientResource($ingredient);
     }
 
+    public function destroy(Request $request, int $ingredient): Response
+    {
+        $this->ingredientForUser($request, $ingredient)->delete();
+
+        return response()->noContent();
+    }
+
+    private function ingredientForUser(Request $request, int $ingredient): Ingredient
+    {
+        return Ingredient::query()
+            ->where('shop_id', $request->user()->shop_id)
+            ->findOrFail($ingredient);
+    }
 }

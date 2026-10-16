@@ -107,6 +107,29 @@ class IngredientsApiTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('current_stock');
     }
 
+    public function test_user_cannot_read_update_or_delete_another_shops_ingredient(): void
+    {
+        $this->authenticate();
+        $otherShop = Shop::create(['name' => 'Other Shop', 'code' => 'OTHER']);
+        $foreign = Ingredient::create(['shop_id' => $otherShop->id, 'name' => 'Foreign', 'unit' => 'kg']);
+
+        $this->getJson("/api/v1/ingredients/{$foreign->id}")->assertNotFound();
+        $this->putJson("/api/v1/ingredients/{$foreign->id}", ['name' => 'Changed', 'unit' => 'kg'])->assertNotFound();
+        $this->deleteJson("/api/v1/ingredients/{$foreign->id}")->assertNotFound();
+
+        $this->assertDatabaseHas('ingredients', ['id' => $foreign->id, 'name' => 'Foreign']);
+    }
+
+    public function test_destroy_soft_deletes_an_ingredient_of_the_users_shop(): void
+    {
+        $shop = $this->authenticate();
+        $ingredient = Ingredient::create(['shop_id' => $shop->id, 'name' => 'Milk', 'unit' => 'L']);
+
+        $this->deleteJson("/api/v1/ingredients/{$ingredient->id}")->assertNoContent();
+
+        $this->assertSoftDeleted('ingredients', ['id' => $ingredient->id]);
+    }
+
     private function authenticate(UserRole $role = UserRole::Admin): Shop
     {
         $shop = Shop::create(['name' => 'Coffee Shop', 'code' => fake()->unique()->lexify('??????')]);

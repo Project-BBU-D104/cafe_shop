@@ -121,4 +121,19 @@ class ProductTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.name', 'Mocha Frappuccino');
     }
+
+    public function test_cashiers_can_read_but_not_manage_products(): void
+    {
+        Sanctum::actingAs(User::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Cashier',
+            'email' => 'cashier@example.com',
+            'password' => 'password',
+            'role' => UserRole::Cashier,
+            'is_active' => true,
+        ]));
+
+        $this->getJson('/api/v1/products')->assertOk();
+        $this->postJson('/api/v1/products', ['name' => 'Latte'])->assertForbidden();
+    }
 }

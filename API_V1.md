@@ -78,6 +78,20 @@ All routes below are registered in `laravel_api/routes/api.php`.
 | PUT/PATCH | `http://127.0.0.1:8000/api/v1/ingredients/{ingredient}` | owner, admin, manager |
 | DELETE | `http://127.0.0.1:8000/api/v1/ingredients/{ingredient}` | owner, admin, manager |
 
+### Inventory movements
+
+| Method | Full URL | Access |
+|---|---|---|
+| POST | `http://127.0.0.1:8000/api/v1/ingredients/{ingredient}/movements` | owner, admin, manager |
+| GET | `http://127.0.0.1:8000/api/v1/inventory/movements` | owner, admin, manager |
+
+`POST` body: `type` (`stock_in`, `stock_out`, `adjustment`, `waste`,
+`order_consumption`), `quantity` (decimal, 3 places; positive except for
+`adjustment`, which takes a signed delta), and optional `unit_cost` (defaults
+to the ingredient's current cost), `reference_type`, `reference_id`, `notes`.
+`GET` returns the shop's movement history newest first, 50 per page, and
+accepts `?ingredient_id=`.
+
 ### Staff and users
 
 | Method | Full URL | Access |
@@ -108,8 +122,6 @@ These routes are in the architecture plan but are not registered in Laravel.
 
 | Method | Full URL | Purpose |
 |---|---|---|
-| POST | `http://127.0.0.1:8000/api/v1/ingredients/{ingredient}/movements` | Record a stock movement |
-| GET | `http://127.0.0.1:8000/api/v1/inventory/movements` | List stock movement history |
 | GET | `http://127.0.0.1:8000/api/v1/tables` | List table availability |
 | PATCH | `http://127.0.0.1:8000/api/v1/tables/{table}/status` | Update table status |
 | GET/POST | `http://127.0.0.1:8000/api/v1/orders` | List or create orders |

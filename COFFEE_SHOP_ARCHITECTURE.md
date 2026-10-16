@@ -147,7 +147,7 @@ Progress: tick a table once its migration, model, and API endpoints exist.
 - [x] `product_variants`
 - [x] `product_ingredients`
 - [x] `ingredients`
-- [ ] `inventory_movements`
+- [x] `inventory_movements`
 - [ ] `orders`
 - [ ] `order_items`
 - [ ] `payments`
