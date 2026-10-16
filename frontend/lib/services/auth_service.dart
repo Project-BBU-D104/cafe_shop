@@ -22,4 +22,12 @@ class AuthService {
 
     return loginData;
   }
+
+  Future<Map<String, dynamic>> me() async {
+    final response = await _api.get("auth/me");
+
+    final data = Map<String, dynamic>.from(response);
+
+    return Map<String, dynamic>.from(data['data']);
+  }
 }

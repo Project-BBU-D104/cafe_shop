@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/services/storage_service.dart';
-import 'package:frontend/services/telegram_service.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 // import 'package:package_info_plus/package_info_plus.dart';
@@ -15,7 +14,6 @@ import 'dart:io';
 
 final storage = locator<IStorageService>();
 
-final telegram = locator<TelegramService>();
 
 String appName = "ePOS App";
 String deviceID = "";

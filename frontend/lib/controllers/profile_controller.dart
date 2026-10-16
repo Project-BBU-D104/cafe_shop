@@ -1,5 +1,8 @@
 import 'package:frontend/global.dart';
+import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/widget/toast_widget.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileController extends GetxController{
 
@@ -9,22 +12,50 @@ class ProfileController extends GetxController{
   final photo = "".obs;
   final role = "".obs;
 
+  final AuthService _authService = AuthService();
+
   @override
   void onInit() {
     super.onInit();
     loadUserLogin();
   }
 
-  void loadUserLogin() {
-    final data = storage.lastUserLoginRead;
-    final user = data["user"];
-    if(user !=null){
-      username.value = data["user"]["name"] ?? "";
-      email.value = data["user"]["email"] ?? "";
-      phone.value = data["user"]["phone"] ?? "";
-      photo.value = data["user"]["photo"] ?? "";
-      role.value = data["user"]["role"] ?? "";
+  Future<void> loadUserLogin() async {
+    _applyUser(storage.lastUserLoginRead["user"]);
+
+    try {
+      final user = await _authService.me();
+
+      await storage.lastUserLoginWrite(
+        data: {
+          "token": storage.lastUserLoginRead["token"],
+          "token_type": "Bearer Token",
+          "user": user,
+        },
+      );
+
+      _applyUser(user);
+    } on http.ClientException {
+      ToastWidget.show(
+        message: "Can't connect to the internet",
+        type: ToastType.error,
+      );
+    } catch (_) {
+      ToastWidget.show(
+        message: "Couldn't refresh profile",
+        type: ToastType.error,
+      );
     }
+  }
+
+  void _applyUser(dynamic user) {
+    if (user is! Map) return;
+
+    username.value = user["name"] ?? "";
+    email.value = user["email"] ?? "";
+    phone.value = user["phone"] ?? "";
+    photo.value = user["photo"] ?? "";
+    role.value = user["role"] ?? "";
   }
 
   void onLogoutPress(){

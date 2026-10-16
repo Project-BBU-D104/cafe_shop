@@ -45,14 +45,13 @@ class CardPersonalInfoWidget extends StatelessWidget {
                 ),
               ),
               
-              if(ctr.phone.value.isNotEmpty) ...[
-                SizedBox(height: 10,),
-                Text("Phone Number".tr, style: TextStyle(fontWeight: FontWeight.w600),),
-                SizedBox(height: 5,),
-                cardInfo(
-                  title: ctr.phone.value,
+              SizedBox(height: 10,),
+              Text("Phone Number".tr, style: TextStyle(fontWeight: FontWeight.w600),),
+              SizedBox(height: 5,),
+              Obx(()=> cardInfo(
+                  title: ctr.phone.value.isEmpty ? "-" : ctr.phone.value,
                 ),
-              ]
+              ),
             ],
           ),
         ),
