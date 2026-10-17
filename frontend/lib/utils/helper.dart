@@ -50,3 +50,8 @@ class Helper {
     }
   }
 }
+
+/// Reads a boolean that may arrive as true, 1, "1" or "true" from the API.
+bool asBool(dynamic value) {
+  return value == true || value == 1 || value == '1' || value == 'true';
+}

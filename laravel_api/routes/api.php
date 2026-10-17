@@ -26,13 +26,15 @@ Route::prefix('v1')->group(function (): void {
         // Cashiers need the menu to take orders, so category/product reads stay open
         Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
         Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+        // Variants carry the menu prices, so their reads stay open for cashiers too.
+        Route::apiResource('products.variants', ProductVariantController::class)->only(['index', 'show']);
 
         Route::middleware('role:owner,admin,manager')->group(function (): void {
             // index/show are registered open above; re-registering them here would
             // replace those routes (same method+URI) and lock cashiers out of the menu.
             Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
-            Route::apiResource('products.variants', ProductVariantController::class);
+            Route::apiResource('products.variants', ProductVariantController::class)->except(['index', 'show']);
             Route::get('variants/{variant}/ingredients', [ProductIngredientController::class, 'index']);
             Route::post('variants/{variant}/ingredients', [ProductIngredientController::class, 'store']);
             Route::patch('variants/{variant}/ingredients/{ingredient}', [ProductIngredientController::class, 'update']);

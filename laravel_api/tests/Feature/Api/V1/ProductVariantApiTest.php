@@ -123,6 +123,33 @@ class ProductVariantApiTest extends TestCase
         $this->postJson("/api/v1/products/{$product->id}/variants", [])->assertUnauthorized();
     }
 
+    public function test_cashier_can_read_variants_but_not_change_them(): void
+    {
+        $product = $this->createProduct();
+        ProductVariant::create(['product_id' => $product->id, 'name' => 'Regular', 'price' => '3.50']);
+
+        Sanctum::actingAs(User::create([
+            'shop_id' => $this->shop->id,
+            'name' => 'Cashier User',
+            'email' => 'cashier@example.com',
+            'password' => 'password',
+            'role' => UserRole::Cashier,
+            'is_active' => true,
+        ]));
+
+        $this->getJson("/api/v1/products/{$product->id}/variants")
+            ->assertOk()
+            ->assertJsonCount(1, 'data');
+
+        $this->getJson("/api/v1/products/{$product->id}/variants/{$product->variants()->first()->id}")
+            ->assertOk();
+
+        $this->postJson("/api/v1/products/{$product->id}/variants", [
+            'name' => 'Large',
+            'price' => '4.50',
+        ])->assertForbidden();
+    }
+
     private function createProduct(): Product
     {
         $category = Category::create(['shop_id' => $this->shop->id, 'name' => 'Drinks']);

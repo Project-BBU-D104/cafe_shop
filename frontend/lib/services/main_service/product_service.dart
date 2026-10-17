@@ -5,9 +5,9 @@ class ProductService {
 
   static const String endpoint = "products";
 
-  /// GET ALL Product
+  /// GET ALL Product (including unavailable ones: the management screens need them)
   Future<dynamic> getProducts() async {
-    return await _api.get(endpoint);
+    return await _api.get('$endpoint/?include_unavailable=1');
   }
 
   /// GET Product BY ID
