@@ -25,6 +25,11 @@ class Shop extends Model
         return $this->hasMany(Shift::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     protected function casts(): array
     {
         return [

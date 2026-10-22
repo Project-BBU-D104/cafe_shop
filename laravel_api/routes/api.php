@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\IngredientController;
 use App\Http\Controllers\Api\V1\InventoryMovementController;
+use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProductIngredientController;
 use App\Http\Controllers\Api\V1\ProductVariantController;
@@ -43,6 +44,12 @@ Route::prefix('v1')->group(function (): void {
             Route::post('ingredients/{ingredient}/movements', [InventoryMovementController::class, 'store'])->whereNumber('ingredient');
             Route::get('inventory/movements', [InventoryMovementController::class, 'index']);
         });
+        // Cashiers take and progress orders, so every authenticated staff member can use these.
+        Route::apiResource('orders', OrderController::class)->only(['index', 'show', 'store'])->where(['order' => '[0-9]+']);
+        Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->whereNumber('order');
+        Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->whereNumber('order');
+        Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->whereNumber('order');
+
         // Owners and admins can manage all staff; authenticated staff can view only their own profile.
         Route::get('staff/me', [StaffController::class, 'me']);
         Route::apiResource('staff', StaffController::class)

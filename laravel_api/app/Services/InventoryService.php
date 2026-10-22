@@ -14,8 +14,9 @@ class InventoryService
     public function record(User $user, Ingredient $ingredient, array $data): InventoryMovement
     {
         return DB::transaction(function () use ($user, $ingredient, $data): InventoryMovement {
-            // Re-read under lock so the delta applies to fresh stock.
-            $ingredient = Ingredient::query()->whereKey($ingredient->id)->lockForUpdate()->firstOrFail();
+            // Re-read under lock so the delta applies to fresh stock. Trashed rows
+            // still hold stock: recipes referencing a soft-deleted ingredient stay valid.
+            $ingredient = Ingredient::withTrashed()->whereKey($ingredient->id)->lockForUpdate()->firstOrFail();
 
             $type = StockMovementType::from($data['type']);
             $quantity = (string) $data['quantity'];

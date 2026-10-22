@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\OrderStatus;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+
+#[Fillable(['order_id', 'user_id', 'from_status', 'to_status', 'note'])]
+class OrderStatusHistory extends Model
+{
+    public const UPDATED_AT = null;
+
+    protected function casts(): array
+    {
+        return [
+            'from_status' => OrderStatus::class,
+            'to_status' => OrderStatus::class,
+            'created_at' => 'datetime',
+        ];
+    }
+}
