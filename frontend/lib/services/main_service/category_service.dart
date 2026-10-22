@@ -7,7 +7,7 @@ class CategoryService {
 
   /// GET ALL CATEGORY
   Future<dynamic> getCategories() async {
-    return await _api.get(endpoint);
+    return await _api.get('$endpoint/?include_inactive=1');
   }
 
   /// GET CATEGORY BY ID

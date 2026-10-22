@@ -7,20 +7,37 @@ class ToastWidget {
     ToastType type = ToastType.success,
     String title = "",
     Duration duration = const Duration(seconds: 3),
+    String? fontFamily,
   }) {
+    final titleStyle = fontFamily == null
+        ? null
+        : Get.textTheme.titleLarge?.copyWith(
+            fontFamily: fontFamily,
+            color: Colors.white,
+          );
+    final messageStyle = fontFamily == null
+        ? null
+        : Get.textTheme.bodyMedium?.copyWith(
+            fontFamily: fontFamily,
+            color: Colors.white,
+          );
+
     Get.snackbar(
       title.isEmpty ? _title(type) : title,
       message,
+      titleText: titleStyle == null
+          ? null
+          : Text(title.isEmpty ? _title(type) : title, style: titleStyle),
+      messageText: messageStyle == null
+          ? null
+          : Text(message, style: messageStyle),
       snackPosition: SnackPosition.TOP,
       duration: duration,
       margin: const EdgeInsets.all(16),
       borderRadius: 14,
       backgroundColor: _color(type),
       colorText: Colors.white,
-      icon: Icon(
-        _icon(type),
-        color: Colors.white,
-      ),
+      icon: Icon(_icon(type), color: Colors.white),
       snackStyle: SnackStyle.FLOATING,
       animationDuration: const Duration(milliseconds: 300),
       isDismissible: true,
@@ -68,10 +85,4 @@ class ToastWidget {
   }
 }
 
-
-enum ToastType {
-  success,
-  error,
-  warning,
-  info,
-}
+enum ToastType { success, error, warning, info }

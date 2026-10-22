@@ -32,7 +32,7 @@ class EditCategoryWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Add Category'.tr,
+                    'Edit Category'.tr,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,

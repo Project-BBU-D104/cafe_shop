@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 
 class CardCategoryWidget extends StatelessWidget {
   final Map<String, dynamic> category;
+  final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const CardCategoryWidget({
     super.key,
     required this.category,
+    this.onTap,
     this.onEdit,
     this.onDelete,
   });
@@ -42,9 +44,12 @@ class CardCategoryWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -165,6 +170,7 @@ class CardCategoryWidget extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
