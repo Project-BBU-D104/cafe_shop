@@ -5,9 +5,9 @@ class IngredientService {
 
   static const String endpoint = "ingredients";
 
-  /// GET ALL Ingredient
+  /// GET ALL Ingredient (incl. archived ones, so the screen can reactivate them)
   Future<dynamic> getIngredients() async {
-    return await _api.get(endpoint);
+    return await _api.get("$endpoint/?include_inactive=1");
   }
 
   /// GET Ingredient BY ID

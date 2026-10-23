@@ -57,6 +57,55 @@ class IngredientsApiTest extends TestCase
             ->assertJsonValidationErrors('name');
     }
 
+    public function test_update_allows_keeping_the_current_name(): void
+    {
+        $shop = $this->authenticate();
+        $ingredient = Ingredient::create(['shop_id' => $shop->id, 'name' => 'Milk', 'unit' => 'L']);
+
+        $this->putJson("/api/v1/ingredients/{$ingredient->id}", [
+            'name' => 'Milk',
+            'unit' => 'L',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Milk');
+    }
+
+    public function test_update_ignores_current_stock(): void
+    {
+        $shop = $this->authenticate();
+        $ingredient = Ingredient::create(['shop_id' => $shop->id, 'name' => 'Milk', 'unit' => 'L', 'current_stock' => '2.000']);
+
+        $this->putJson("/api/v1/ingredients/{$ingredient->id}", [
+            'name' => 'Milk',
+            'unit' => 'L',
+            'current_stock' => '99.000',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('ingredients', ['id' => $ingredient->id, 'current_stock' => '2.000']);
+    }
+
+    public function test_destroy_handles_long_non_latin_names(): void
+    {
+        $shop = $this->authenticate();
+        $khmerName = str_repeat('ក', 80); // 240 bytes — substr would cut mid-character
+        $ingredient = Ingredient::create(['shop_id' => $shop->id, 'name' => $khmerName, 'unit' => 'kg']);
+
+        $this->deleteJson("/api/v1/ingredients/{$ingredient->id}")->assertNoContent();
+
+        $this->assertSoftDeleted('ingredients', ['id' => $ingredient->id]);
+    }
+
+    public function test_update_rejects_a_name_taken_by_another_ingredient(): void
+    {
+        $shop = $this->authenticate();
+        Ingredient::create(['shop_id' => $shop->id, 'name' => 'Milk', 'unit' => 'L']);
+        $sugar = Ingredient::create(['shop_id' => $shop->id, 'name' => 'Sugar', 'unit' => 'kg']);
+
+        $this->putJson("/api/v1/ingredients/{$sugar->id}", ['name' => 'Milk', 'unit' => 'kg'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('name');
+    }
+
     public function test_index_scopes_results_and_can_filter_low_stock(): void
     {
         $shop = $this->authenticate();
@@ -128,6 +177,18 @@ class IngredientsApiTest extends TestCase
         $this->deleteJson("/api/v1/ingredients/{$ingredient->id}")->assertNoContent();
 
         $this->assertSoftDeleted('ingredients', ['id' => $ingredient->id]);
+    }
+
+    public function test_destroy_frees_the_name_for_reuse(): void
+    {
+        $shop = $this->authenticate();
+        $ingredient = Ingredient::create(['shop_id' => $shop->id, 'name' => 'Milk', 'unit' => 'L']);
+
+        $this->deleteJson("/api/v1/ingredients/{$ingredient->id}")->assertNoContent();
+
+        $this->postJson('/api/v1/ingredients', ['name' => 'Milk', 'unit' => 'L'])
+            ->assertCreated()
+            ->assertJsonPath('data.name', 'Milk');
     }
 
     private function authenticate(UserRole $role = UserRole::Admin): Shop

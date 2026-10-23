@@ -4,6 +4,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/global.dart';
 import 'package:http/http.dart' as http;
 
+/// 422 with a field => messages error map; message matches the old plain Exception.
+class ValidationException implements Exception {
+  final String message;
+  final Map<String, dynamic> errors;
+
+  ValidationException(this.message, this.errors);
+
+  // Same wording as Exception.toString() so existing toast/error paths are unchanged.
+  @override
+  String toString() => 'Exception: $message';
+}
+
 class ApiService {
   final String baseUrl = dotenv.env['API_URL']!;
 
@@ -111,11 +123,14 @@ class ApiService {
   // Extract the backend error message dynamically
   String errorMessage = 'API Error (${response.statusCode})';
 
+  Map<String, dynamic>? validationErrors;
+
   if (body is Map) {
     // Check validation errors first
     final errors = body['errors'];
 
     if (errors is Map && errors.isNotEmpty) {
+      validationErrors = Map<String, dynamic>.from(errors);
       final firstError = errors.values.first;
 
       if (firstError is List && firstError.isNotEmpty) {
@@ -131,6 +146,10 @@ class ApiService {
     } else if (body['detail'] != null) {
       errorMessage = body['detail'].toString();
     }
+  }
+
+  if (validationErrors != null) {
+    throw ValidationException(errorMessage, validationErrors);
   }
 
   throw Exception(errorMessage);

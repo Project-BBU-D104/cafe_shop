@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreIngredientRequest;
+use App\Http\Requests\UpdateIngredientRequest;
 use App\Http\Resources\IngredientResource;
 use App\Models\Ingredient;
 use Illuminate\Http\JsonResponse;
@@ -42,7 +43,7 @@ class IngredientController extends Controller
         return new IngredientResource($this->ingredientForUser($request, $ingredient));
     }
 
-    public function update(StoreIngredientRequest $request, int $ingredient): IngredientResource
+    public function update(UpdateIngredientRequest $request, int $ingredient): IngredientResource
     {
         $ingredient = $this->ingredientForUser($request, $ingredient);
         $ingredient->update($request->validated());
@@ -52,7 +53,14 @@ class IngredientController extends Controller
 
     public function destroy(Request $request, int $ingredient): Response
     {
-        $this->ingredientForUser($request, $ingredient)->delete();
+        $ingredient = $this->ingredientForUser($request, $ingredient);
+
+        // The unique index covers soft-deleted rows, so free the name for reuse.
+        // mb_substr: byte-wise substr can split a multi-byte character and produce invalid UTF-8.
+        $ingredient->update([
+            'name' => mb_substr($ingredient->name, 0, 200).' (deleted '.$ingredient->id.')',
+        ]);
+        $ingredient->delete();
 
         return response()->noContent();
     }
