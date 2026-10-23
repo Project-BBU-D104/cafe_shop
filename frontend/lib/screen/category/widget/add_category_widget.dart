@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/category_controller.dart';
 import 'package:get/get.dart';
@@ -12,6 +11,8 @@ class AddCategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -26,18 +27,42 @@ class AddCategoryWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Add Category'.tr,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.add_rounded,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Add Category'.tr,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          'Create a category for your products.'.tr,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   IconButton(
+                    tooltip: 'Close'.tr,
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -46,8 +71,7 @@ class AddCategoryWidget extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              // Category Name
-              _buildLabel('Category Name'.tr),
+              _buildLabel(context, 'Category Name'.tr),
               const SizedBox(height: 5),
 
               TextFormField(
@@ -55,7 +79,9 @@ class AddCategoryWidget extends StatelessWidget {
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   hintText: 'Enter Category Name'.tr,
-                  border: const OutlineInputBorder(),
+                  border: _categoryInputBorder(context),
+                  enabledBorder: _categoryInputBorder(context),
+                  focusedBorder: _categoryInputBorder(context, focused: true),
                   prefixIcon: const Icon(Icons.category_outlined),
                 ),
                 validator: (value) {
@@ -68,8 +94,7 @@ class AddCategoryWidget extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Description
-              _buildLabel('Description'.tr),
+              _buildLabel(context, 'Description'.tr),
               const SizedBox(height: 5),
 
               TextFormField(
@@ -79,15 +104,16 @@ class AddCategoryWidget extends StatelessWidget {
                 textInputAction: TextInputAction.newline,
                 decoration: InputDecoration(
                   hintText: 'Enter Description'.tr,
-                  border: const OutlineInputBorder(),
+                  border: _categoryInputBorder(context),
+                  enabledBorder: _categoryInputBorder(context),
+                  focusedBorder: _categoryInputBorder(context, focused: true),
                   alignLabelWithHint: true,
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              // Sort Order
-              _buildLabel('Sort Order'.tr),
+              _buildLabel(context, 'Sort Order'.tr),
               const SizedBox(height: 5),
 
               TextFormField(
@@ -96,7 +122,9 @@ class AddCategoryWidget extends StatelessWidget {
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   hintText: 'Enter Sort Order'.tr,
-                  border: const OutlineInputBorder(),
+                  border: _categoryInputBorder(context),
+                  enabledBorder: _categoryInputBorder(context),
+                  focusedBorder: _categoryInputBorder(context, focused: true),
                   prefixIcon: const Icon(Icons.sort),
                 ),
                 validator: (value) {
@@ -118,33 +146,41 @@ class AddCategoryWidget extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Active Status
               Obx(
-                () => SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('Active'.tr),
-                  subtitle: Text(
-                    ctr.isActiveController.value
-                        ? 'Category is active'.tr
-                        : 'Category is inactive'.tr,
+                () => Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
                   ),
-                  value: ctr.isActiveController.value,
-                  onChanged: (value) {
-                    ctr.isActiveController.value = value;
-                  },
+                  child: SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    title: Text('Active'.tr),
+                    subtitle: Text(
+                      ctr.isActiveController.value
+                          ? 'Category is active'.tr
+                          : 'Category is inactive'.tr,
+                    ),
+                    value: ctr.isActiveController.value,
+                    onChanged: (value) {
+                      ctr.isActiveController.value = value;
+                    },
+                  ),
                 ),
               ),
 
               const SizedBox(height: 15),
 
-              // Save Button
               SizedBox(
                 width: double.infinity,
                 height: 45,
                 child: Obx(
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF102A43),
+                      backgroundColor: const Color(0xFF90CAF9),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     onPressed: ctr.isLoading.value
                         ? null
@@ -165,9 +201,8 @@ class AddCategoryWidget extends StatelessWidget {
                           )
                         : Text(
                             'Save'.tr,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                   ),
@@ -180,12 +215,25 @@ class AddCategoryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(BuildContext context, String text) {
     return Text(
       text,
-      style: const TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 16,
+      style: Theme.of(
+        context,
+      ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+    );
+  }
+
+  OutlineInputBorder _categoryInputBorder(
+    BuildContext context, {
+    bool focused = false,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(
+        color: focused ? colorScheme.primary : colorScheme.outlineVariant,
+        width: focused ? 1.5 : 1,
       ),
     );
   }

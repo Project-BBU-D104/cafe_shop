@@ -235,7 +235,12 @@ class CategoryController extends GetxController {
   Future<void> onDeleteCategory(int categoryId, BuildContext context) async {
     showConfirmDialog(
       context: context,
-      message: "Do you want to delete this category?".tr,
+      title: 'Delete Category'.tr,
+      message:
+          'Deleting this category will also permanently delete any products assigned to it. Continue?'
+              .tr,
+      cancelText: 'Cancel'.tr,
+      confirmText: 'Delete'.tr,
       onConfirm: () async {
         try {
           await service.deleteCategory(categoryId);
