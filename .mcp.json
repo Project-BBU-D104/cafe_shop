@@ -1,0 +1,19 @@
+{
+    "mcpServers": {
+     "laravel-boost": {
+        "type": "stdio",
+        "command": "php",
+        "args": ["laravel_api/artisan", "boost:mcp"]
+        },
+    "dart": {
+        "type": "stdio",
+        "command": "dart",
+        "args": ["mcp-server"]
+        },
+    "playwright": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"]
+        }
+    }
+}
