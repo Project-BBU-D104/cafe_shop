@@ -5,8 +5,8 @@ Consumes the Laravel API in `../laravel_api` (docs: `../API_V1.md`).
 ## Setup & Commands (from `frontend/`)
 
 - Requires a `.env` file with `API_URL` (flutter_dotenv; loaded by `lib/services/api_service.dart`).
-  Android emulator reaches the local API at `http://10.0.2.2:8000`.
-- `flutter pub get` · `flutter run` · `flutter analyze` · `flutter test`
+  Use `http://localhost:8000` for Chrome; Android emulator reaches the local API at `http://10.0.2.2:8000`.
+- `flutter pub get` · `flutter run -d chrome` (run on web — no physical device) · `flutter analyze` · `flutter test`
 
 ## Architecture
 
