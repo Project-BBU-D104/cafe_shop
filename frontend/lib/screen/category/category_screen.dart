@@ -23,6 +23,7 @@ class CategoryScreen extends StatelessWidget {
             centerTitle: false,
             onBack: () => Navigator.pop(categoryContext),
             onRefresh: cateCtr.onGetCategories,
+            showRefresh: true,
           ),
           body: RefreshIndicator(
             onRefresh: cateCtr.onGetCategories,
@@ -547,7 +548,7 @@ bool _isCategoryActive(Map<String, dynamic> category) {
 }
 
 String _formatCategoryDate(String value) {
-  final date = DateTime.tryParse(value);
+  final date = DateTime.tryParse(value)?.toLocal();
   if (date == null) return value;
 
   final hasTime = value.contains('T') || value.contains(' ');

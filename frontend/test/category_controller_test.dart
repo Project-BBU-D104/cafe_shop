@@ -7,6 +7,7 @@ import 'package:frontend/screen/category/category_screen.dart';
 import 'package:frontend/screen/category/widget/add_category_widget.dart';
 import 'package:frontend/screen/category/widget/card_category_widget.dart';
 import 'package:frontend/screen/category/widget/edit_category_widget.dart';
+import 'package:frontend/utils/date_formatter.dart';
 import 'package:get/get.dart';
 
 void main() {
@@ -202,6 +203,15 @@ void main() {
     expect(find.text('Category ID'), findsOneWidget);
     expect(find.text('7'), findsOneWidget);
     expect(find.text('Last Updated'), findsOneWidget);
+    // timestamps must render in device-local time, not raw UTC
+    expect(
+      find.text(
+        DateFormatter.formatDateTime(
+          DateTime.parse('2026-10-23T09:15:00Z').toLocal(),
+        ),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Delete'), findsOneWidget);
     expect(tester.takeException(), isNull);
