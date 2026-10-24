@@ -27,4 +27,16 @@ void main() {
     ctr.onSearchIngredient('  ');
     expect(ctr.searchIngredientList.length, 3);
   });
+
+  test('buildPayload omits stock on update and defaults blank cost to zero', () {
+    final ctr = IngredientController();
+
+    ctr.currentStockController.text = '12';
+    ctr.costPerUnitController.clear();
+
+    final payload = ctr.buildPayload(includeStock: false);
+
+    expect(payload.containsKey('current_stock'), isFalse);
+    expect(payload['cost_per_unit'], '0');
+  });
 }

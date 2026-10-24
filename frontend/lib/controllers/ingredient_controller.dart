@@ -136,7 +136,8 @@ class IngredientController extends GetxController {
     }).toList();
   }
 
-  Map<String, dynamic> _buildPayload({bool includeStock = true}) {
+  @visibleForTesting
+  Map<String, dynamic> buildPayload({bool includeStock = true}) {
     final stockText = currentStockController.text.trim();
     final minText = minimumStockController.text.trim();
     final costText = costPerUnitController.text.trim();
@@ -205,7 +206,7 @@ class IngredientController extends GetxController {
       isLoading.value = true;
       serverErrors.clear();
 
-      await service.createIngredient(_buildPayload());
+      await service.createIngredient(buildPayload());
 
       await onGetIngredients();
 
@@ -300,7 +301,7 @@ class IngredientController extends GetxController {
 
       await service.updateIngredient(
         ingredientId,
-        _buildPayload(includeStock: false),
+        buildPayload(includeStock: false),
       );
 
       // Refresh
