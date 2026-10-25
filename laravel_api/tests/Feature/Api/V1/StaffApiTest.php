@@ -149,13 +149,42 @@ class StaffApiTest extends TestCase
     public function test_destroy_deactivates_the_user_but_keeps_the_profile(): void
     {
         $shop = $this->authenticate();
+        $admin = auth()->user();
         $staff = User::factory()->create(['shop_id' => $shop->id, 'is_active' => true]);
         StaffProfile::create(['user_id' => $staff->id, 'employee_code' => 'EMP-001']);
 
+        $token = $staff->createToken('test')->plainTextToken;
+
+        // Control: the staff token authenticates before deactivation.
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/staff/me')
+            ->assertOk();
+        $this->app['auth']->forgetGuards();
+
+        Sanctum::actingAs($admin);
         $this->deleteJson("/api/v1/staff/{$staff->id}")->assertNoContent();
 
         $this->assertDatabaseHas('users', ['id' => $staff->id, 'is_active' => false]);
         $this->assertDatabaseHas('staff_profiles', ['user_id' => $staff->id, 'employee_code' => 'EMP-001']);
+
+        // The deactivated account's token must stop working immediately.
+        $this->app['auth']->forgetGuards();
+        $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/staff/me')
+            ->assertUnauthorized();
+    }
+
+    public function test_destroy_refuses_to_deactivate_your_own_account(): void
+    {
+        $this->authenticate();
+        $admin = auth()->user();
+
+        $this->deleteJson("/api/v1/staff/{$admin->id}")
+            ->assertUnprocessable()
+            ->assertJson(['message' => 'You cannot deactivate your own account.']);
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id, 'is_active' => true]);
     }
 
     private function authenticate(UserRole $role = UserRole::Admin): Shop

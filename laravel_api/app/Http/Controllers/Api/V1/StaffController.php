@@ -62,7 +62,11 @@ class StaffController extends Controller
 
     public function destroy(Request $request, int $staff): Response
     {
-        $this->staffForUser($request, $staff)->update(['is_active' => false]);
+        $user = $this->staffForUser($request, $staff);
+        abort_if($user->is($request->user()), 422, 'You cannot deactivate your own account.');
+        $user->update(['is_active' => false]);
+        // A disabled account must not keep working on an already-issued token.
+        $user->tokens()->delete();
 
         return response()->noContent();
     }

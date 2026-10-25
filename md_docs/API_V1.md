@@ -99,7 +99,7 @@ accepts `?ingredient_id=`.
 | GET | `http://127.0.0.1:8000/api/v1/staff/me` | Authenticated; own profile |
 | GET/POST | `http://127.0.0.1:8000/api/v1/staff` | owner, admin |
 | PUT/PATCH | `http://127.0.0.1:8000/api/v1/staff/{staff}` | owner, admin |
-| DELETE | `http://127.0.0.1:8000/api/v1/staff/{staff}` | owner, admin; deactivates staff |
+| DELETE | `http://127.0.0.1:8000/api/v1/staff/{staff}` | owner, admin; deactivates staff and revokes their tokens; 422 on your own account |
 | POST | `http://127.0.0.1:8000/api/v1/users` | owner, admin |
 
 ### Shifts

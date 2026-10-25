@@ -22,67 +22,70 @@ class ConfirmDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ConstrainedBox(
+        // Dialog stretches to full window width on web/tablet otherwise.
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Title
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // Message
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14),
-            ),
+              // Message
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14),
+              ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: dangerColor.shade500,
-                      foregroundColor: titleColor,
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: titleColor,
+                      ),
+                      onPressed: onCancel,
+                      child: Text(cancelText),
                     ),
-                    onPressed: onCancel,
-                    child: Text(cancelText),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: titleColor,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        // Every caller of this dialog is a destructive action
+                        // (delete/deactivate), so confirm gets the danger red.
+                        backgroundColor: dangerColor.shade500,
+                        foregroundColor: titleColor,
+                      ),
+                      onPressed: onConfirm,
+                      child: Text(confirmText),
                     ),
-                    onPressed: onConfirm,
-                    child: Text(confirmText),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
 
 // how to use it
 // ElevatedButton(
