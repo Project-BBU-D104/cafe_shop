@@ -90,6 +90,7 @@ class ProductVariantScreen extends StatelessWidget {
                               // Read-only roles get no menu: the API rejects writes.
                               return CardProductVariantWidget(
                                 variant: variant,
+                                canManage: canManage,
                                 onEdit: canManage
                                     ? () => ctr.onEditVariant(
                                           context,

@@ -4,6 +4,10 @@ import 'package:frontend/screen/product_variant/widget/edit_product_variant_widg
 import 'package:get/get.dart';
 import 'package:frontend/screen/product_variant/widget/add_product_variant_widget.dart';
 import 'package:frontend/screen/product_variant/widget/select_product_widget.dart';
+import 'package:frontend/screen/product_variant/widget/recipe_form_widget.dart';
+import 'package:frontend/services/api_service.dart';
+import 'package:frontend/services/main_service/ingredient_service.dart';
+import 'package:frontend/services/main_service/product_ingredient_service.dart';
 import 'package:frontend/services/main_service/product_service.dart';
 import 'package:frontend/services/main_service/product_variant_service.dart';
 import 'package:frontend/widget/bottom_sheets.dart';
@@ -30,6 +34,18 @@ class ProductVariantController extends GetxController {
   final isDefaultController = false.obs;
   final isAvailableController = true.obs;
 
+  // Recipe rows per variant; loaded the first time its section is expanded.
+  final ProductIngredientService recipeService = ProductIngredientService();
+  final RxMap<int, List<Map<String, dynamic>>> recipes =
+      <int, List<Map<String, dynamic>>>{}.obs;
+  final RxList<int> expandedRecipeIds = <int>[].obs;
+  final RxList<int> loadingRecipeIds = <int>[].obs;
+  final RxList<Map<String, dynamic>> ingredientsForRecipe =
+      <Map<String, dynamic>>[].obs;
+  final RxnInt recipeIngredientId = RxnInt();
+  final recipeQuantityController = TextEditingController();
+  final RxMap<String, String> recipeServerErrors = <String, String>{}.obs;
+
   int? get productId => int.tryParse((product.value?['id'] ?? '').toString());
 
   /// Only these roles may add or change variants (same rule as the API).
@@ -44,6 +60,7 @@ class ProductVariantController extends GetxController {
   void onClose() {
     variantNameController.dispose();
     variantPriceController.dispose();
+    recipeQuantityController.dispose();
     super.onClose();
   }
 
@@ -385,5 +402,300 @@ class ProductVariantController extends GetxController {
     Get.put(SearchController()).clear();
 
     onGetVariants();
+  }
+
+  // --- Recipe (product ingredients) ---------------------------------------
+
+  bool isRecipeExpanded(int variantId) => expandedRecipeIds.contains(variantId);
+
+  bool isRecipeLoading(int variantId) => loadingRecipeIds.contains(variantId);
+
+  List<Map<String, dynamic>> recipeFor(int variantId) =>
+      recipes[variantId] ?? const [];
+
+  /// Active ingredients that are not bound to this variant yet.
+  List<Map<String, dynamic>> availableRecipeIngredients(int variantId) {
+    final bound = recipeFor(variantId)
+        .map((row) => (row['ingredient_id'] ?? '').toString())
+        .toSet();
+
+    return ingredientsForRecipe.where((ingredient) {
+      return asBool(ingredient['is_active'] ?? true) &&
+          !bound.contains((ingredient['id'] ?? '').toString());
+    }).toList();
+  }
+
+  Map<String, dynamic>? get selectedRecipeIngredient {
+    final int? id = recipeIngredientId.value;
+
+    if (id == null) return null;
+
+    for (final ingredient in ingredientsForRecipe) {
+      if ((ingredient['id'] ?? '').toString() == id.toString()) {
+        return ingredient;
+      }
+    }
+
+    return null;
+  }
+
+  /// Positive quantity with at most 3 decimals, mirroring the API rule.
+  static String? validateRecipeQuantity(String? value) {
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) return 'Quantity is required';
+
+    final number = double.tryParse(text);
+
+    if (number == null || number <= 0) {
+      return 'Enter a quantity greater than 0';
+    }
+
+    final decimals = text.contains('.') ? text.split('.').last.length : 0;
+
+    if (decimals > 3) return 'Use at most 3 decimal places';
+
+    return null;
+  }
+
+  @visibleForTesting
+  Map<String, dynamic> buildRecipePayload() {
+    final unit = (selectedRecipeIngredient?['unit'] ?? '').toString();
+
+    return {
+      'ingredient_id': recipeIngredientId.value,
+      'quantity': recipeQuantityController.text.trim(),
+      // The API pins the unit to the ingredient's unit; send the same value.
+      if (unit.isNotEmpty) 'unit': unit,
+    };
+  }
+
+  Future<void> onToggleRecipe(int variantId) async {
+    if (expandedRecipeIds.contains(variantId)) {
+      expandedRecipeIds.remove(variantId);
+      return;
+    }
+
+    expandedRecipeIds.add(variantId);
+
+    if (!recipes.containsKey(variantId)) {
+      await onGetRecipe(variantId);
+    }
+  }
+
+  Future<void> onGetRecipe(int variantId) async {
+    try {
+      loadingRecipeIds.add(variantId);
+
+      final resp = await recipeService.getRecipe(variantId);
+
+      final List<dynamic> data =
+          resp is Map && resp['data'] is List ? resp['data'] as List : [];
+
+      recipes[variantId] = data
+          .map<Map<String, dynamic>>(
+            (item) => Map<String, dynamic>.from(item as Map),
+          )
+          .toList();
+    } catch (e) {
+      // Collapse so the section doesn't claim "no ingredients"; the next tap
+      // retries, because recipes still has no entry for this variant.
+      expandedRecipeIds.remove(variantId);
+
+      ToastWidget.show(
+        message: 'Failed to load recipe: $e',
+        type: ToastType.error,
+      );
+    } finally {
+      loadingRecipeIds.remove(variantId);
+    }
+  }
+
+  Future<void> onAddRecipeIngredient(
+    BuildContext context,
+    int variantId,
+  ) async {
+    // A second tap while the fetch runs would stack two sheets.
+    if (isLoading.value) return;
+
+    try {
+      isLoading.value = true;
+
+      if (ingredientsForRecipe.isEmpty) {
+        final resp = await IngredientService().getIngredients();
+
+        if (resp is Map && resp['data'] is List) {
+          ingredientsForRecipe.assignAll(
+            (resp['data'] as List).map<Map<String, dynamic>>(
+              (item) => Map<String, dynamic>.from(item as Map),
+            ),
+          );
+        }
+      }
+
+      if (availableRecipeIngredients(variantId).isEmpty) {
+        ToastWidget.show(
+          message: 'No ingredients left to add',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      recipeServerErrors.clear();
+      recipeIngredientId.value = null;
+      recipeQuantityController.clear();
+
+      if (!context.mounted) return;
+
+      AppBottomSheets.show(
+        context,
+        child: RecipeFormWidget(
+          title: 'Add Ingredient',
+          variantId: variantId,
+        ),
+      );
+    } catch (e) {
+      ToastWidget.show(
+        message: 'Failed to load ingredients: $e',
+        type: ToastType.error,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void onEditRecipeIngredient(
+    BuildContext context,
+    int variantId,
+    Map<String, dynamic> row,
+  ) {
+    final ingredient = row['ingredient'];
+
+    recipeServerErrors.clear();
+    recipeIngredientId.value =
+        int.tryParse((row['ingredient_id'] ?? '').toString());
+    recipeQuantityController.text = (row['quantity'] ?? '').toString();
+
+    AppBottomSheets.show(
+      context,
+      child: RecipeFormWidget(
+        title: 'Edit Quantity',
+        variantId: variantId,
+        isEdit: true,
+        ingredientName: ingredient is Map
+            ? (ingredient['name'] ?? '').toString()
+            : 'Ingredient',
+        unit: (row['unit'] ?? '').toString(),
+      ),
+    );
+  }
+
+  Future<void> onSaveRecipeIngredient(
+    int variantId, {
+    int? ingredientId,
+  }) async {
+    final String? quantityError =
+        validateRecipeQuantity(recipeQuantityController.text);
+
+    if (quantityError != null) {
+      recipeServerErrors['quantity'] = quantityError;
+      return;
+    }
+
+    if (ingredientId == null && recipeIngredientId.value == null) {
+      recipeServerErrors['ingredient_id'] = 'Select an ingredient';
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      recipeServerErrors.clear();
+
+      if (ingredientId == null) {
+        await recipeService.addIngredient(variantId, buildRecipePayload());
+      } else {
+        await recipeService.updateQuantity(variantId, ingredientId, {
+          'quantity': recipeQuantityController.text.trim(),
+        });
+      }
+
+      await onGetRecipe(variantId);
+      _closeSheet();
+
+      ToastWidget.show(
+        message: ingredientId == null
+            ? 'Ingredient added to recipe'
+            : 'Quantity updated',
+        type: ToastType.success,
+      );
+    } catch (e) {
+      handleRecipeError(e);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> onRemoveRecipeIngredient(
+    BuildContext context,
+    int variantId,
+    int ingredientId,
+  ) async {
+    showConfirmDialog(
+      context: context,
+      message: 'Remove this ingredient from the recipe?',
+      onConfirm: () async {
+        try {
+          await recipeService.removeIngredient(variantId, ingredientId);
+          await onGetRecipe(variantId);
+
+          ToastWidget.show(
+            message: 'Ingredient removed from recipe',
+            type: ToastType.success,
+          );
+        } catch (e) {
+          ToastWidget.show(
+            message: e.toString(),
+            type: ToastType.error,
+          );
+        }
+      },
+      onCancel: () {
+        // Do nothing
+      },
+    );
+  }
+
+  // Fields the form can display an error under.
+  static const _recipeFields = {'ingredient_id', 'quantity'};
+
+  @visibleForTesting
+  void handleRecipeError(Object e) {
+    if (e is ValidationException) {
+      // Show each message under its own field instead of a generic toast.
+      recipeServerErrors.assignAll(
+        e.errors.map(
+          (field, messages) => MapEntry(
+            field,
+            messages is List && messages.isNotEmpty
+                ? messages.first.toString()
+                : messages.toString(),
+          ),
+        ),
+      );
+
+      // Nothing maps to a visible field — fall back so the user isn't stuck.
+      if (!e.errors.keys.any(_recipeFields.contains)) {
+        ToastWidget.show(
+          message: e.message,
+          type: ToastType.error,
+        );
+      }
+      return;
+    }
+
+    ToastWidget.show(
+      message: e.toString(),
+      type: ToastType.error,
+    );
   }
 }

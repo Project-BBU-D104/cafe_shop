@@ -83,6 +83,21 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  /// PATCH
+  Future<dynamic> patch(
+    String endpoint,
+    String id,
+    Map<String, dynamic> data,
+  ) async {
+    final response = await http.patch(
+      _buildUri("$endpoint/$id"),
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    return _handleResponse(response);
+  }
+
   /// DELETE
   Future<dynamic> delete(
     String endpoint,

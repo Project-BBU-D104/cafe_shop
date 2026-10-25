@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screen/product_variant/widget/recipe_section_widget.dart';
 import 'package:frontend/utils/helper.dart';
 
 class CardProductVariantWidget extends StatelessWidget {
   final Map<String, dynamic> variant;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool canManage;
 
   const CardProductVariantWidget({
     super.key,
     required this.variant,
     this.onEdit,
     this.onDelete,
+    this.canManage = false,
   });
 
   @override
@@ -122,6 +125,11 @@ class CardProductVariantWidget extends StatelessWidget {
                         ),
                     ],
                   ),
+                  // Read-only roles get no recipe controls: the API rejects them.
+                  if (canManage)
+                    RecipeSectionWidget(
+                      variantId: int.parse('${variant['id']}'),
+                    ),
                 ],
               ),
             ),
