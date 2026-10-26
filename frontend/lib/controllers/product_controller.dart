@@ -56,7 +56,8 @@ class ProductController extends GetxController{
     showConfirmDialog(
       context: context,
       title: 'Delete Product',
-      message: 'Delete "${product['name'] ?? 'this product'}"? This cannot be undone.',
+      message:
+          'Delete "${product['name'] ?? 'this product'}" and all of its variants and recipes? This cannot be undone.',
       cancelText: 'Cancel',
       confirmText: 'Delete',
       onConfirm: () async {

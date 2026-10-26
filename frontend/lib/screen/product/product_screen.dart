@@ -60,6 +60,7 @@ class ProductScreen extends StatelessWidget {
 
           return ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 96),
             itemCount: ctr.products.length,
             itemBuilder: (context, index) {
               final product = ctr.products[index];
