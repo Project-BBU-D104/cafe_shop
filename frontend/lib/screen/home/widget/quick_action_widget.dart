@@ -44,10 +44,10 @@ class QuickActionWidget extends StatelessWidget {
             children: [
               CardFeatureWidget(
                 onTap: (){
-                  // ctr.gotoSale();
+                  ctr.gotoInventoryMovement();
                 },
-                icon: Icons.shopping_cart_rounded,
-                title: "Order",
+                icon: Icons.inventory_2_rounded,
+                title: "Inventory Movements",
                 
               ),
               CardFeatureWidget(
@@ -66,7 +66,7 @@ class QuickActionWidget extends StatelessWidget {
               ),
               CardFeatureWidget(
                 onTap: (){
-                  // ctr.gotoSupplier();
+                  ctr.gotoTableNumber();
                 },
                 icon: Icons.table_bar_rounded,
                 title: "Table Number",

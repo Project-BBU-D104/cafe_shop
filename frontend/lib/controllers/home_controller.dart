@@ -68,5 +68,10 @@ class HomeController extends GetxController{
   void gotoProduct(){
     Get.toNamed(AppRoutes.product);
   }
- 
+  void gotoInventoryMovement(){
+    Get.toNamed(AppRoutes.inventoryMovements);
+  }
+  void gotoTableNumber(){
+    Get.toNamed(AppRoutes.tableNumber);
+  }
 }
