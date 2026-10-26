@@ -16,7 +16,7 @@ class ManageController extends GetxController{
         {
           "title": "Shift Management",
           "subtitle": "Shift Management",
-          "icon": Icons.access_time_outlined,
+          "icon": Icons.access_time_filled_rounded,
           "route": AppRoutes.shift,
         },
       ]
@@ -27,25 +27,25 @@ class ManageController extends GetxController{
         {
           "title": "Category",
           "subtitle": "Category Management",
-          "icon": Icons.category_outlined,
+          "icon": Icons.category_rounded,
           "route": AppRoutes.category,
         },
         {
           "title": "Product",
           "subtitle": "Product Management",
-          "icon": Icons.inventory_2_outlined,
+          "icon": Icons.inventory_2_rounded,
           "route": AppRoutes.product,
         },
         {
           "title": "Product Variant",
           "subtitle": "Product Variant Management",
-          "icon": Icons.inventory_2_outlined,
+          "icon": Icons.inventory_2_rounded,
           "route": AppRoutes.productVariant,
         },
         {
           "title": "Ingredient",
           "subtitle": "Ingredient Management",
-          "icon": Icons.inventory_2_outlined,
+          "icon": Icons.inventory_2_rounded,
           "route": AppRoutes.ingredient,
         },
       ]
@@ -56,7 +56,7 @@ class ManageController extends GetxController{
         {
           "title": "Inventory Movements",
           "subtitle": "Inventory Movements",
-          "icon": Icons.category_outlined,
+          "icon": Icons.category_rounded,
           "route": AppRoutes.inventoryMovements,
         },
       ]
@@ -67,19 +67,19 @@ class ManageController extends GetxController{
         {
           "title": "User Management",
           "subtitle": "User Management",
-          "icon": Icons.person_outlined,
+          "icon": Icons.person_rounded,
           "route": AppRoutes.user,
         },
         {
           "title": "Table Number",
           "subtitle": "Table Number Management",
-          "icon": Icons.table_bar_outlined,
+          "icon": Icons.table_bar_rounded,
           "route": AppRoutes.tableNumber,
         },
         {
           "title": "Settings",
           "subtitle": "System Settings",
-          "icon": Icons.settings_outlined,
+          "icon": Icons.settings_rounded,
           "route": AppRoutes.settings,
         }
       ]

@@ -46,30 +46,30 @@ class QuickActionWidget extends StatelessWidget {
                 onTap: (){
                   // ctr.gotoSale();
                 },
-                icon: Icons.shopping_cart_outlined,
-                title: "Sale",
+                icon: Icons.shopping_cart_rounded,
+                title: "Order",
                 
               ),
               CardFeatureWidget(
                 onTap: (){
                   ctr.gotoCategory();
                 },
-                icon: Icons.category_outlined,
+                icon: Icons.category_rounded,
                 title: "Category",
               ),
               CardFeatureWidget(
                 onTap: (){
                   ctr.gotoProduct();
                 },
-                icon: Icons.inventory_2_outlined,
+                icon: Icons.inventory_2_rounded,
                 title: "Product",
               ),
               CardFeatureWidget(
                 onTap: (){
                   // ctr.gotoSupplier();
                 },
-                icon: Icons.local_shipping_outlined,
-                title: "Supplier",
+                icon: Icons.table_bar_rounded,
+                title: "Table Number",
               ),
                
             ],

@@ -26,27 +26,27 @@ class HomeScreen extends StatelessWidget {
                   labelType: NavigationRailLabelType.all,
                   destinations: [
                     NavigationRailDestination(
-                      icon: const Icon(Icons.home_outlined),
+                      icon: const Icon(Icons.home_rounded),
                       selectedIcon: const Icon(Icons.home),
                       label: Text('Home'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.shopping_bag_outlined),
+                      icon: const Icon(Icons.shopping_bag_rounded),
                       selectedIcon: const Icon(Icons.shopping_bag),
                       label: Text('Manage'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.shopping_cart_outlined),
+                      icon: const Icon(Icons.shopping_cart_rounded),
                       selectedIcon: const Icon(Icons.shopping_cart),
                       label: Text('Order'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.receipt_long_outlined),
+                      icon: const Icon(Icons.receipt_long_rounded),
                       selectedIcon: const Icon(Icons.receipt_long),
                       label: Text('Report'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.person_2_outlined),
+                      icon: const Icon(Icons.person_2_rounded),
                       selectedIcon: const Icon(Icons.person_2),
                       label: Text('Profile'.tr),
                     ),
