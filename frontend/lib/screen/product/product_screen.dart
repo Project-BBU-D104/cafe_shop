@@ -68,59 +68,74 @@ class ProductScreen extends StatelessWidget {
               final bool isAvailable =
                   asBool(product['isAvailable'] ?? product['is_available']);
 
-              return ListTile(
-                leading: const Icon(Icons.inventory_2_outlined),
-                title: Text((product['name'] ?? '').toString()),
-                subtitle: Text(isAvailable ? 'Available' : 'Unavailable'),
-                trailing: PopupMenuButton<String>(
-                  tooltip: 'Product actions'.tr,
-                  onSelected: (action) {
-                    if (action == 'edit') {
-                      showModalBottomSheet<void>(
-                        context: context,
-                        isScrollControlled: true,
-                        useSafeArea: true,
-                        builder: (_) => AddProductWidget(
-                          product: product,
-                          onSaved: ctr.onGetProductList,
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                          child: const Icon(Icons.inventory_2_outlined),
                         ),
-                      );
-                    } else if (action == 'delete') {
-                      ctr.onDeleteProduct(context, product);
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.edit_outlined, size: 20),
-                          const SizedBox(width: 10),
-                          Text('Edit Product'.tr),
-                        ],
+                        title: Text(
+                          (product['name'] ?? '').toString(),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isAvailable ? Icons.check_circle : Icons.pause_circle,
+                                size: 16,
+                                color: isAvailable ? Colors.green.shade700 : Colors.grey,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(isAvailable ? 'Available'.tr : 'Unavailable'.tr),
+                            ],
+                          ),
+                        ),
+                        onTap: () => Get.toNamed(
+                          AppRoutes.productVariant,
+                          arguments: product,
+                        ),
                       ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
+                      const Divider(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          const Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Delete Product'.tr,
-                            style: const TextStyle(color: Colors.red),
+                          FilledButton.icon(
+                            onPressed: () => showModalBottomSheet<void>(
+                              context: context,
+                              isScrollControlled: true,
+                              useSafeArea: true,
+                              builder: (_) => AddProductWidget(
+                                product: product,
+                                onSaved: ctr.onGetProductList,
+                              ),
+                            ),
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                            label: Text('Edit'.tr),
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton.icon(
+                            onPressed: () => ctr.onDeleteProduct(context, product),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Theme.of(context).colorScheme.error,
+                            ),
+                            icon: const Icon(Icons.delete_outline, size: 18),
+                            label: Text('Delete'.tr),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                onTap: () {
-                  Get.toNamed(
-                    AppRoutes.productVariant,
-                    arguments: product,
-                  );
-                },
               );
             },
           );
