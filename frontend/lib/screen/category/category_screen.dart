@@ -88,21 +88,21 @@ class CategoryScreen extends StatelessWidget {
       builder: (dialogContext) {
         final theme = Theme.of(dialogContext);
         final screenSize = MediaQuery.sizeOf(dialogContext);
+        final verticalInset = screenSize.height < 700 ? 8.0 : 24.0;
 
-        return AlertDialog(
+        return Dialog(
           insetPadding: EdgeInsets.symmetric(
-            horizontal: screenSize.width < 520 ? 16 : 32,
-            vertical: 24,
+            horizontal: screenSize.width < 520 ? 0 : 32,
+            vertical: verticalInset,
           ),
-          contentPadding: EdgeInsets.zero,
-          titlePadding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(22),
           ),
-          content: ConstrainedBox(
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: 560,
-              maxHeight: screenSize.height * 0.78,
+              maxHeight: screenSize.height - verticalInset * 2,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -110,13 +110,13 @@ class CategoryScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 8, 12),
+                    padding: const EdgeInsets.fromLTRB(22, 16, 12, 10),
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
                             'Category Details'.tr,
-                            style: theme.textTheme.titleLarge?.copyWith(
+                            style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -130,38 +130,38 @@ class CategoryScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 22),
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: 46,
-                            height: 46,
+                            width: 58,
+                            height: 58,
                             decoration: BoxDecoration(
                               color: theme.colorScheme.surface,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(15),
                             ),
                             child: Icon(
                               Icons.category_outlined,
                               color: theme.colorScheme.primary,
+                              size: 26,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   name.isEmpty ? 'Unnamed category'.tr : name,
-                                  maxLines: 3,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleMedium?.copyWith(
+                                  style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -175,10 +175,10 @@ class CategoryScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(22, 24, 22, 8),
                     child: Text(
                       'Category Information'.tr,
-                      style: theme.textTheme.titleSmall?.copyWith(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -213,41 +213,40 @@ class CategoryScreen extends StatelessWidget {
                       value: _formatCategoryDate(updatedAt),
                     ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(22, 20, 22, 8),
                     child: Text(
                       'Description'.tr,
-                      style: theme.textTheme.titleSmall?.copyWith(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 22),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant,
+                          color: theme.colorScheme.onSurface,
+                          width: 1.2,
                         ),
                       ),
                       child: Text(
                         description.isEmpty
                             ? 'No description provided'.tr
                             : description,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          height: 1.5,
-                        ),
+                        style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(22, 16, 22, 8),
                     child: Wrap(
                       alignment: WrapAlignment.end,
-                      spacing: 8,
+                      spacing: 12,
                       runSpacing: 8,
                       children: [
                         TextButton.icon(
@@ -255,21 +254,29 @@ class CategoryScreen extends StatelessWidget {
                             Navigator.of(dialogContext).pop();
                             cateCtr.onDeleteCategory(category['id'], context);
                           },
-                          icon: Icon(
-                            Icons.delete_outline_rounded,
-                            color: theme.colorScheme.error,
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.colorScheme.error,
                           ),
-                          label: Text(
-                            'Delete'.tr,
-                            style: TextStyle(color: theme.colorScheme.error),
-                          ),
+                          icon: const Icon(Icons.delete_outline_rounded),
+                          label: Text('Delete'.tr),
                         ),
                         OutlinedButton.icon(
                           onPressed: () {
                             Navigator.of(dialogContext).pop();
                             cateCtr.onEditCategory(context, category['id']);
                           },
-                          icon: const Icon(Icons.edit_outlined),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: theme.colorScheme.onSurface,
+                            side: BorderSide(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                          icon: const Icon(Icons.edit_outlined, size: 19),
                           label: Text('Edit'.tr),
                         ),
                       ],
