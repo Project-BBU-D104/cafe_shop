@@ -13,18 +13,6 @@ class ProductScreen extends StatelessWidget {
 
   final ProductController ctr = Get.put(ProductController());
 
-  void _openProductSheet(BuildContext context, [Map<String, dynamic>? product]) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => AddProductWidget(
-        product: product,
-        onSaved: ctr.onGetProductList,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,14 +22,10 @@ class ProductScreen extends StatelessWidget {
         onBack: () => Navigator.pop(context),
       ),
       floatingActionButton: FloatingActionButton.extended(
-<<<<<<< HEAD
-        onPressed: () => _openProductSheet(context),
-=======
         onPressed: () => AppBottomSheets.show(
           context,
           child: AddProductWidget(onSaved: ctr.onGetProductList),
         ),
->>>>>>> a81fec0 (change form Add and Edit in Product Management)
         icon: const Icon(Icons.add_rounded),
         label: Text('Add Product'.tr),
       ),
@@ -126,9 +110,6 @@ class ProductScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           FilledButton.icon(
-<<<<<<< HEAD
-                            onPressed: () => _openProductSheet(context, product),
-=======
                             onPressed: () => AppBottomSheets.show(
                               context,
                               child: EditProductWidget(
@@ -136,7 +117,6 @@ class ProductScreen extends StatelessWidget {
                                 onSaved: ctr.onGetProductList,
                               ),
                             ),
->>>>>>> a81fec0 (change form Add and Edit in Product Management)
                             icon: const Icon(Icons.edit_outlined, size: 18),
                             label: Text('Edit'.tr),
                           ),
