@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/product_controller.dart';
-import 'package:frontend/screen/product/widget/add_product_widget.dart';
 import 'package:frontend/routes/app_routes.dart';
+import 'package:frontend/screen/product/widget/add_product_widget.dart';
+import 'package:frontend/screen/product/widget/edit_product_widget.dart';
 import 'package:frontend/utils/helper.dart';
+import 'package:frontend/widget/bottom_sheets.dart';
 import 'package:frontend/widget/custom_app_bar.dart';
 import 'package:get/get.dart';
 
@@ -32,7 +34,14 @@ class ProductScreen extends StatelessWidget {
         onBack: () => Navigator.pop(context),
       ),
       floatingActionButton: FloatingActionButton.extended(
+<<<<<<< HEAD
         onPressed: () => _openProductSheet(context),
+=======
+        onPressed: () => AppBottomSheets.show(
+          context,
+          child: AddProductWidget(onSaved: ctr.onGetProductList),
+        ),
+>>>>>>> a81fec0 (change form Add and Edit in Product Management)
         icon: const Icon(Icons.add_rounded),
         label: Text('Add Product'.tr),
       ),
@@ -117,7 +126,17 @@ class ProductScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           FilledButton.icon(
+<<<<<<< HEAD
                             onPressed: () => _openProductSheet(context, product),
+=======
+                            onPressed: () => AppBottomSheets.show(
+                              context,
+                              child: EditProductWidget(
+                                product: product,
+                                onSaved: ctr.onGetProductList,
+                              ),
+                            ),
+>>>>>>> a81fec0 (change form Add and Edit in Product Management)
                             icon: const Icon(Icons.edit_outlined, size: 18),
                             label: Text('Edit'.tr),
                           ),
