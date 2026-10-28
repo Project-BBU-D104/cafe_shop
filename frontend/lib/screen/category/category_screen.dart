@@ -23,7 +23,6 @@ class CategoryScreen extends StatelessWidget {
             centerTitle: false,
             onBack: () => Navigator.pop(categoryContext),
             onRefresh: cateCtr.onGetCategories,
-            showRefresh: true,
           ),
           body: RefreshIndicator(
             onRefresh: cateCtr.onGetCategories,
