@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/constants/constant.dart';
 import 'package:frontend/controllers/home_controller.dart';
 import 'package:get/get.dart';
@@ -56,11 +57,24 @@ class HomeScreen extends StatelessWidget {
 
             // Page content
             Expanded(
-              child: PageView(
-                controller: controller.pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: controller.onPageChanged,
-                children: controller.tabPages,
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, _) {
+                  if (didPop) return;
+                  final nested = Get.nestedKey(1)?.currentState;
+                  if (nested != null && nested.canPop()) {
+                    nested.pop();
+                  } else {
+                    SystemNavigator.pop();
+                  }
+                },
+                // The observer keeps Get.arguments and Get.routing aware of
+                // in-shell pushes; GetX only watches the root navigator.
+                child: Navigator(
+                  key: Get.nestedKey(1),
+                  observers: [GetObserver(null, Get.routing)],
+                  onGenerateRoute: _onGenerateRoute,
+                ),
               ),
             ),
           ],
@@ -107,6 +121,27 @@ class HomeScreen extends StatelessWidget {
               );
             })
           : null,
+    );
+  }
+
+  Widget _tabPages() {
+    return PageView(
+      controller: controller.pageController,
+      physics: const NeverScrollableScrollPhysics(),
+      onPageChanged: controller.onPageChanged,
+      children: controller.tabPages,
+    );
+  }
+
+  // Pushed pages render inside this navigator, so the NavigationRail stays put.
+  Route<dynamic> _onGenerateRoute(RouteSettings settings) {
+    // Build from the matched GetPage so its bindings are not dropped.
+    final page = Get.routeTree.matchRoute(settings.name ?? '/').route;
+    return GetPageRoute(
+      settings: settings,
+      page: page?.page ?? _tabPages,
+      binding: page?.binding,
+      bindings: page?.bindings,
     );
   }
 }

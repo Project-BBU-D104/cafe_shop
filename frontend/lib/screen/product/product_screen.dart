@@ -103,6 +103,7 @@ class ProductScreen extends StatelessWidget {
                         onTap: () => Get.toNamed(
                           AppRoutes.productVariant,
                           arguments: product,
+                          id: 1,
                         ),
                       ),
                       const Divider(height: 20),

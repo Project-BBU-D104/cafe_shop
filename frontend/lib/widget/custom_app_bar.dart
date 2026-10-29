@@ -38,7 +38,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 CupertinoIcons.back,
                 color: darkColor,
               ),
-              onPressed: onBack ?? () => Get.back(),
+              onPressed: onBack ?? () => Navigator.of(context).maybePop(),
             )
           : null,
 

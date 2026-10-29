@@ -134,6 +134,6 @@ class ManageController extends GetxController{
   }
 
   void goTo(String route) {
-    Get.toNamed(route);
+    Get.toNamed(route, id: 1);
   }
 }

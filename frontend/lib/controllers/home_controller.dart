@@ -35,6 +35,9 @@ class HomeController extends GetxController{
 }
 
   void onTabChanged(int index) {
+    // Leave whatever page is open inside the nested navigator before switching.
+    Get.until((route) => route.isFirst, id: 1);
+
     if (index != selectedIndex.value) {
       selectedIndex.value = index;
       pageController.jumpToPage(
@@ -63,15 +66,15 @@ class HomeController extends GetxController{
 
   // quick action
   void gotoCategory(){
-    Get.toNamed(AppRoutes.category);
+    Get.toNamed(AppRoutes.category, id: 1);
   }
   void gotoProduct(){
-    Get.toNamed(AppRoutes.product);
+    Get.toNamed(AppRoutes.product, id: 1);
   }
   void gotoInventoryMovement(){
-    Get.toNamed(AppRoutes.inventoryMovements);
+    Get.toNamed(AppRoutes.inventoryMovements, id: 1);
   }
   void gotoTableNumber(){
-    Get.toNamed(AppRoutes.tableNumber);
+    Get.toNamed(AppRoutes.tableNumber, id: 1);
   }
 }

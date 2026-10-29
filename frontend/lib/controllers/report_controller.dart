@@ -69,6 +69,6 @@ final searchCtr = Get.put(SearchFeatureController());
   }
 
   void goTo(String route) {
-    Get.toNamed(route);
+    Get.toNamed(route, id: 1);
   }
 }

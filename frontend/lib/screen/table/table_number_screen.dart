@@ -11,7 +11,7 @@ class TableNumberScreen extends StatelessWidget {
       appBar: CustomAppBar(
         title: "Table Management".tr,
         showBack: true,
-        onBack: () => Get.back(),
+        onBack: () => Navigator.pop(context),
       ),
     );
   }

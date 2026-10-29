@@ -8,6 +8,9 @@ class AppBottomSheets {
   }) {
     return showModalBottomSheet<T>(
     context: context,
+    // Get.back() closes routes on the root navigator, so the sheet must live
+    // there too when it is opened from a page inside the nested navigator.
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: lightColor,
