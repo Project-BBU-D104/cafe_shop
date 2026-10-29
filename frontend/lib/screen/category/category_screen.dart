@@ -22,7 +22,6 @@ class CategoryScreen extends StatelessWidget {
             showBack: true,
             centerTitle: false,
             onBack: () => Navigator.pop(categoryContext),
-            onRefresh: cateCtr.onGetCategories,
           ),
           body: RefreshIndicator(
             onRefresh: cateCtr.onGetCategories,
@@ -230,8 +229,7 @@ class CategoryScreen extends StatelessWidget {
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: theme.colorScheme.onSurface,
-                          width: 1.2,
+                          color: theme.colorScheme.outlineVariant,
                         ),
                       ),
                       child: Text(
