@@ -283,7 +283,10 @@ class InventoryMovementApiTest extends TestCase
             ->assertOk()
             ->assertJsonCount(2, 'data')
             ->assertJsonPath('data.0.type', 'stock_out')
-            ->assertJsonPath('data.1.type', 'stock_in');
+            ->assertJsonPath('data.1.type', 'stock_in')
+            // The screen shows the ingredient name and unit without extra lookups.
+            ->assertJsonPath('data.0.ingredient.name', $ingredient->name)
+            ->assertJsonPath('data.0.ingredient.unit', $ingredient->unit);
     }
 
     public function test_index_filters_by_ingredient(): void
@@ -299,6 +302,22 @@ class InventoryMovementApiTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.ingredient_id', $milk->id);
+    }
+
+    public function test_index_names_the_ingredient_even_after_it_is_deleted(): void
+    {
+        $shop = $this->authenticate();
+        $ingredient = $this->createIngredient($shop);
+
+        $this->postJson("/api/v1/ingredients/{$ingredient->id}/movements", ['type' => 'stock_in', 'quantity' => '1.000'])->assertCreated();
+
+        $ingredient->delete();
+
+        $this->getJson('/api/v1/inventory/movements')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.ingredient.name', $ingredient->name)
+            ->assertJsonPath('data.0.ingredient.unit', $ingredient->unit);
     }
 
     public function test_movement_routes_expose_no_update_or_delete_endpoints(): void

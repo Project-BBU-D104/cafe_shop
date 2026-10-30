@@ -15,6 +15,8 @@ class InventoryMovementController extends GetxController {
 
   final RxList<Map<String, dynamic>> ingredients =
       <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> movements =
+      <Map<String, dynamic>>[].obs;
   final Rxn<Map<String, dynamic>> selectedIngredient = Rxn();
   final RxString movementType = 'stock_in'.obs;
 
@@ -26,6 +28,7 @@ class InventoryMovementController extends GetxController {
   final RxMap<String, String> serverErrors = <String, String>{}.obs;
 
   final RxBool isLoading = false.obs;
+  final RxBool isLoadingMovements = false.obs;
   final RxBool isSaving = false.obs;
 
   /// Only these roles may record movements (same rule as the API).
@@ -45,6 +48,7 @@ class InventoryMovementController extends GetxController {
   void onInit() {
     super.onInit();
     onGetIngredients();
+    onGetMovements();
   }
 
   @override
@@ -82,6 +86,41 @@ class InventoryMovementController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> onGetMovements({bool silent = false}) async {
+    // Cashiers cannot read the ledger; skip the guaranteed 403.
+    if (!canManage) return;
+
+    try {
+      isLoadingMovements.value = true;
+
+      final resp = await _movementService.getMovements();
+
+      if (resp is Map && resp['data'] is List) {
+        movements.assignAll(
+          (resp['data'] as List).map<Map<String, dynamic>>(
+            (item) => Map<String, dynamic>.from(item as Map),
+          ),
+        );
+      } else {
+        movements.clear();
+      }
+    } catch (e) {
+      // After a save the movement is already recorded; don't alarm the user
+      // with a failed reload.
+      if (!silent) {
+        ToastWidget.show(
+          message: 'Failed to load movements: $e',
+          type: ToastType.error,
+        );
+      }
+    } finally {
+      isLoadingMovements.value = false;
+    }
+  }
+
+  Future<void> onRefresh() =>
+      Future.wait([onGetIngredients(), onGetMovements()]);
 
   /// Same limits as StoreInventoryMovementRequest: only an adjustment is signed.
   @visibleForTesting
@@ -191,6 +230,8 @@ class InventoryMovementController extends GetxController {
       quantityController.clear();
       unitCostController.clear();
       notesController.clear();
+
+      await onGetMovements(silent: true);
 
       ToastWidget.show(
         message: 'Movement recorded successfully'.tr,

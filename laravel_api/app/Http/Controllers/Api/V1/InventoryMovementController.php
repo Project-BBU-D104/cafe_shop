@@ -18,6 +18,8 @@ class InventoryMovementController extends Controller
     {
         return InventoryMovementResource::collection(
             InventoryMovement::query()
+                // Deleted ingredients still name their history rows.
+                ->with(['ingredient' => fn ($query) => $query->withTrashed()])
                 ->where('shop_id', $request->user()->shop_id)
                 ->when($request->filled('ingredient_id'), fn ($query) => $query->where('ingredient_id', $request->integer('ingredient_id')))
                 ->orderByDesc('created_at')

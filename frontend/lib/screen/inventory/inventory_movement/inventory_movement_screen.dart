@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/inventory_movement_controller.dart';
+import 'package:frontend/utils/date_formatter.dart';
 import 'package:frontend/widget/custom_app_bar.dart';
 import 'package:get/get.dart';
 
@@ -35,7 +36,7 @@ class InventoryMovementScreen extends StatelessWidget {
 
   Widget _buildForm(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: ctr.onGetIngredients,
+      onRefresh: ctr.onRefresh,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
@@ -150,12 +151,193 @@ class InventoryMovementScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              _buildLabel('Recent Movements'.tr),
+              const SizedBox(height: 8),
+              _buildMovementList(),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _buildMovementList() {
+    return Obx(() {
+      if (ctr.isLoadingMovements.value && ctr.movements.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (ctr.movements.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            'No movements yet'.tr,
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        );
+      }
+
+      // shortcut: first page only (50 rows, 10 shown); add paging when needed.
+      return Column(
+        children: ctr.movements.take(10).map(_buildMovementRow).toList(),
+      );
+    });
+  }
+
+  Widget _buildMovementRow(Map<String, dynamic> movement) {
+    final String type = (movement['type'] ?? '').toString();
+    final dynamic ingredient = movement['ingredient'];
+
+    final String name = ingredient is Map && ingredient['name'] != null
+        ? ingredient['name'].toString()
+        : '#${movement['ingredient_id']}';
+    final String unit =
+        ingredient is Map ? (ingredient['unit'] ?? '').toString() : '';
+
+    final String signedQuantity = formatQuantity(
+      type,
+      (movement['quantity'] ?? '').toString(),
+    );
+
+    final String notes = (movement['notes'] ?? '').toString();
+    final String typeLabel = _movementTypes[type] ?? type.replaceAll('_', ' ');
+    final String date = DateFormatter.formatDateTime(
+      DateTime.tryParse((movement['created_at'] ?? '').toString())?.toLocal(),
+    );
+
+    final MaterialColor tint = _typeColor(type);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: tint.shade50,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(_typeIcon(type), color: tint.shade700, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: tint.shade50,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          typeLabel.tr,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: tint.shade700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          date,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (notes.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        notes,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$signedQuantity $unit'.trim(),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: tint.shade700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// The API stores outgoing quantities as positive; the sign comes from the type.
+  static String formatQuantity(String type, String raw) {
+    final value = double.tryParse(raw);
+    if (value == null) return raw;
+
+    const outgoing = {'stock_out', 'waste', 'order_consumption'};
+    final signed = outgoing.contains(type) ? -value : value;
+
+    return '${signed > 0 ? '+' : ''}${_trimZeros(signed)}';
+  }
+
+  /// "3.500" -> "3.5", "10.000" -> "10".
+  static String _trimZeros(double value) =>
+      value.toStringAsFixed(3).replaceFirst(RegExp(r'\.?0+$'), '');
+
+  static MaterialColor _typeColor(String type) => switch (type) {
+        'stock_in' => Colors.green,
+        'stock_out' => Colors.blue,
+        'adjustment' => Colors.orange,
+        'waste' => Colors.brown,
+        _ => Colors.blueGrey,
+      };
+
+  static IconData _typeIcon(String type) => switch (type) {
+        'stock_in' => Icons.arrow_downward,
+        'stock_out' => Icons.arrow_upward,
+        'adjustment' => Icons.tune,
+        'waste' => Icons.delete_outline,
+        _ => Icons.swap_vert,
+      };
 
   Widget _buildIngredientField(BuildContext context) {
     return Obx(() {

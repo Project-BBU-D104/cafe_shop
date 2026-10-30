@@ -90,7 +90,8 @@ All routes below are registered in `laravel_api/routes/api.php`.
 `adjustment`, which takes a signed delta), and optional `unit_cost` (defaults
 to the ingredient's current cost), `reference_type`, `reference_id`, `notes`.
 `GET` returns the shop's movement history newest first, 50 per page, and
-accepts `?ingredient_id=`.
+accepts `?ingredient_id=`. Each row includes its `ingredient` (`name`, `unit`,
+…), including ingredients that have since been deleted.
 
 ### Staff and users
 
