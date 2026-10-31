@@ -10,6 +10,11 @@ class ProductService {
     return await _api.get('$endpoint/?include_unavailable=1');
   }
 
+  /// GET only the products the POS catalog may sell.
+  Future<dynamic> getAvailableProducts() async {
+    return await _api.get('$endpoint/');
+  }
+
   /// GET Product BY ID
   Future<dynamic> getProductById(int id) async {
     return await _api.getById(
