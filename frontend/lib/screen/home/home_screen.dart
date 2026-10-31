@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/constants/constant.dart';
+import 'package:frontend/controllers/cart_controller.dart';
 import 'package:frontend/controllers/home_controller.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,11 @@ class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
   final controller = Get.put(HomeController());
+
+  // Permanent so the POS cart survives tab disposal; cleared on logout.
+  final cartController = Get.isRegistered<CartController>()
+      ? Get.find<CartController>()
+      : Get.put(CartController(), permanent: true);
 
   @override
   Widget build(BuildContext context) {

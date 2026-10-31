@@ -64,6 +64,22 @@ void main() {
     expect(cart.itemCount, 0);
   });
 
+  test('resetSession clears the shop-scoped catalog cache too', () {
+    final cart = CartController();
+
+    cart.addVariant('Latte', variant(1, '2.50'));
+    cart.products.add({'id': 9, 'name': 'Shop A product'});
+    cart.variantsCache[9] = [variant(1, '2.50')];
+    cart.catalogError.value = 'stale error';
+
+    cart.resetSession();
+
+    expect(cart.items.isEmpty, isTrue);
+    expect(cart.products.isEmpty, isTrue);
+    expect(cart.variantsCache.isEmpty, isTrue);
+    expect(cart.catalogError.value, isNull);
+  });
+
   test('buildOrderPayload matches the StoreOrderRequest contract', () {
     final cart = CartController();
 

@@ -23,4 +23,8 @@ class AppRoutes {
 
   static const saleReport = '/sale-report';
 
+  static const catalog = '/catalog';
+  static const cart = '/cart';
+  static const orderDetail = '/orders/:id';
+
 }

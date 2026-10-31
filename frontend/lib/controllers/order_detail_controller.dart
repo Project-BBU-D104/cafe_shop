@@ -57,9 +57,12 @@ class OrderDetailController extends GetxController {
 
   /// Runs a lifecycle call; on success swaps in the fresh order, on any error
   /// (409/404/network) shows the server message and reloads to resync.
+  /// [reload] re-fetches the order instead of using the response body — the
+  /// pay endpoint returns a PaymentResource, not an order.
   Future<void> _act(
     Future<dynamic> Function() call, {
     String? successMessage,
+    bool reload = false,
   }) async {
     if (isActing.value) return;
 
@@ -68,7 +71,9 @@ class OrderDetailController extends GetxController {
 
       final resp = await call();
 
-      if (resp is Map && resp['data'] is Map) {
+      if (reload) {
+        await loadDetail();
+      } else if (resp is Map && resp['data'] is Map) {
         order.value = Map<String, dynamic>.from(resp['data']);
       }
 
@@ -101,5 +106,6 @@ class OrderDetailController extends GetxController {
   Future<void> pay(String method, {String? reference}) => _act(
         () => service.payOrder(orderId, method, reference: reference),
         successMessage: 'Payment recorded',
+        reload: true,
       );
 }

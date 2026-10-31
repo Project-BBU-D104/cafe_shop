@@ -16,6 +16,9 @@ import 'package:frontend/screen/category/category_screen.dart';
 import 'package:frontend/screen/product/product_screen.dart';
 import 'package:frontend/screen/inventory/inventory_movement/inventory_movement_screen.dart';
 import 'package:frontend/screen/shift/shift_screen.dart';
+import 'package:frontend/screen/order/cart_screen.dart';
+import 'package:frontend/screen/order/catalog_screen.dart';
+import 'package:frontend/screen/order/order_detail_screen.dart';
 
 
 class AppPages {
@@ -83,6 +86,20 @@ class AppPages {
     GetPage(
       name: AppRoutes.saleReport,
       page: () => SalesReportScreen(),
+    ),
+
+    // orders / POS
+    GetPage(
+      name: AppRoutes.catalog,
+      page: () => const CatalogScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.cart,
+      page: () => CartScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.orderDetail,
+      page: () => OrderDetailScreen(),
     ),
   ];
 }

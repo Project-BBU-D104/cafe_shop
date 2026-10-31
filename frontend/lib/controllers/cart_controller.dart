@@ -152,6 +152,15 @@ class CartController extends GetxController {
     notesController.clear();
   }
 
+  /// Logout: the controller is permanent, so also drop the shop-scoped
+  /// catalog cache — the next user may belong to a different shop.
+  void resetSession() {
+    clear();
+    products.clear();
+    variantsCache.clear();
+    catalogError.value = null;
+  }
+
   int get itemCount =>
       items.values.fold(0, (sum, line) => sum + line['quantity'] as int);
 
