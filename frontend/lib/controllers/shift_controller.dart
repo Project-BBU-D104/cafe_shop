@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/global.dart';
+import 'package:frontend/services/api_service.dart';
 import 'package:frontend/services/main_service/shift_service.dart';
 import 'package:frontend/widget/toast_widget.dart';
 import 'package:get/get.dart';
@@ -139,4 +140,108 @@ class ShiftController extends GetxController {
   Map<String, dynamic> buildClosePayload() => {
         'closing_cash': double.parse(closingCashController.text.trim()),
       };
+
+  static const _formFields = {'opening_cash', 'notes', 'closing_cash'};
+
+  Future<void> _handleActionError(Object e) async {
+    if (e is ValidationException) {
+      // Show each message under its own field instead of a generic toast.
+      serverErrors.assignAll(
+        e.errors.map(
+          (field, messages) => MapEntry(
+            field,
+            messages is List && messages.isNotEmpty
+                ? messages.first.toString()
+                : messages.toString(),
+          ),
+        ),
+      );
+
+      // Nothing maps to a visible field — fall back so the user isn't stuck.
+      if (!e.errors.keys.any(_formFields.contains)) {
+        ToastWidget.show(
+          message: e.message,
+          type: ToastType.error,
+        );
+      }
+      return;
+    }
+
+    // 409 (already open/closed), network, anything else: show the server
+    // message, then reload so the screen matches the server again.
+    ToastWidget.show(
+      message: e.toString(),
+      type: ToastType.error,
+    );
+    await loadCurrent();
+  }
+
+  Future<void> onStartShift() async {
+    if (isSaving.value) return;
+
+    serverErrors.clear();
+
+    final cashError = validateCash(openingCashController.text);
+    if (cashError != null) {
+      serverErrors['opening_cash'] = cashError;
+      return;
+    }
+
+    try {
+      isSaving.value = true;
+
+      final resp = await _service.start(buildStartPayload());
+
+      if (resp is Map && resp['data'] is Map) {
+        currentShift.value = Map<String, dynamic>.from(resp['data'] as Map);
+      }
+
+      openingCashController.clear();
+      startNotesController.clear();
+
+      await loadHistory(silent: true);
+
+      ToastWidget.show(
+        message: 'Shift started successfully'.tr,
+        type: ToastType.success,
+      );
+    } catch (e) {
+      await _handleActionError(e);
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> onCloseShift() async {
+    final shift = currentShift.value;
+    if (shift == null || isSaving.value) return;
+
+    serverErrors.clear();
+
+    final cashError = validateCash(closingCashController.text);
+    if (cashError != null) {
+      serverErrors['closing_cash'] = cashError;
+      return;
+    }
+
+    try {
+      isSaving.value = true;
+
+      await _service.close(shift['id'] as int, buildClosePayload());
+
+      currentShift.value = null;
+      closingCashController.clear();
+
+      await loadHistory(silent: true);
+
+      ToastWidget.show(
+        message: 'Shift closed successfully'.tr,
+        type: ToastType.success,
+      );
+    } catch (e) {
+      await _handleActionError(e);
+    } finally {
+      isSaving.value = false;
+    }
+  }
 }
