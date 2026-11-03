@@ -107,6 +107,7 @@ accepts `?ingredient_id=`. Each row includes its `ingredient` (`name`, `unit`,
 
 | Method | Full URL | Access |
 |---|---|---|
+| GET | `http://127.0.0.1:8000/api/v1/shifts/current` | cashier, manager; caller's open shift as `{"data": shift}` or `{"data": null}` |
 | POST | `http://127.0.0.1:8000/api/v1/shifts/start` | cashier, manager |
 | POST | `http://127.0.0.1:8000/api/v1/shifts/{shift}/close` | cashier, manager |
 | GET | `http://127.0.0.1:8000/api/v1/shifts` | owner, admin, manager |

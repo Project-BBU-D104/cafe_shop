@@ -25,6 +25,16 @@ class ShiftController extends Controller
         );
     }
 
+    public function current(Request $request): JsonResponse
+    {
+        $shift = Shift::query()
+            ->where('user_id', $request->user()->id)
+            ->whereNull('ended_at')
+            ->first();
+
+        return response()->json(['data' => $shift ? new ShiftResource($shift) : null]);
+    }
+
     public function start(StartShiftRequest $request): JsonResponse
     {
         $user = $request->user();

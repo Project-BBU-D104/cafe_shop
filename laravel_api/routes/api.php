@@ -58,6 +58,7 @@ Route::prefix('v1')->group(function (): void {
         // Owners and admins can create users (e.g. to onboard staff) in their own shop only.
         Route::post('users', [UserController::class, 'store'])->middleware('role:owner,admin');
 
+        Route::get('shifts/current', [ShiftController::class, 'current'])->middleware('role:cashier,manager');
         Route::post('shifts/start', [ShiftController::class, 'start'])->middleware('role:cashier,manager');
         Route::post('shifts/{shift}/close', [ShiftController::class, 'close'])->middleware('role:cashier,manager');
         Route::get('shifts', [ShiftController::class, 'index'])->middleware('role:owner,admin,manager');
