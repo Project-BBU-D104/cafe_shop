@@ -119,7 +119,7 @@ class ShiftController extends GetxController {
   Future<void> onRefresh() => Future.wait([loadCurrent(), loadHistory()]);
 
   /// Mirrors StartShiftRequest/CloseShiftRequest: numeric, min 0, max 2 decimals.
-  @visibleForTesting
+  /// Used by the screen's form validators too, so not test-only.
   String? validateCash(String text) =>
       RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(text.trim())
           ? null

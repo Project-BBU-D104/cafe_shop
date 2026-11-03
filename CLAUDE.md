@@ -9,6 +9,10 @@ Full-stack coffee shop management system: Flutter app (`frontend/`) + Laravel 13
 - `API_V1.md` — hand-maintained API docs; keep in sync when adding/changing v1 endpoints.
 - `COFFEE_SHOP_ARCHITECTURE.md`, `FLUTTER_ARCHITECTURE.md` — design specs.
 
+## Git
+
+- Never add `Co-Authored-By:` trailers or "Generated with Claude Code" attribution to commit messages or PR descriptions.
+
 ## Commands
 
 Backend (from `laravel_api/`):
@@ -20,7 +24,7 @@ Backend (from `laravel_api/`):
 Frontend (from `frontend/`):
 - `flutter pub get` · `flutter run -d chrome` · `flutter analyze` — run on web/Chrome (no physical device)
 - `flutter test` — all tests; `flutter test test/category_controller_test.dart` — single file
-- Requires `frontend/.env` with `API_URL`; use `http://localhost:8000` for Chrome (`http://10.0.2.2:8000` is only for the Android emulator)
+- Requires `frontend/assets/.env` with `API_URL` (loaded by `main.dart`); use `http://localhost:8000` for Chrome (`http://10.0.2.2:8000` is only for the Android emulator)
 
 ## Cross-cutting architecture
 
