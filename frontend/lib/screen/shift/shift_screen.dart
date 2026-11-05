@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controllers/shift_controller.dart';
+import 'package:frontend/routes/app_routes.dart';
 import 'package:frontend/utils/date_formatter.dart';
 import 'package:frontend/widget/custom_app_bar.dart';
 import 'package:get/get.dart';
 
 class ShiftScreen extends StatelessWidget {
-  ShiftScreen({super.key});
+  ShiftScreen({super.key, this.gate = false});
 
-  final ShiftController ctr = Get.put(ShiftController());
+  /// Blocking variant: no back arrow, and starting the shift opens home.
+  final bool gate;
+
+  final ShiftController ctr = Get.isRegistered<ShiftController>()
+      ? Get.find<ShiftController>()
+      : Get.put(ShiftController());
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -16,7 +22,7 @@ class ShiftScreen extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Shift Management',
-        showBack: true,
+        showBack: !gate,
         onBack: () => Navigator.pop(context),
       ),
       body: RefreshIndicator(
@@ -160,7 +166,12 @@ class ShiftScreen extends StatelessWidget {
         _buildSubmitButton(
           context,
           label: 'Start Shift'.tr,
-          onPressed: ctr.onStartShift,
+          onPressed: () async {
+            await ctr.onStartShift();
+            // shortcut: another device may open the shift before this screen
+            // loads; hasOpenShift is still true, so home is the right route.
+            if (gate && ctr.hasOpenShift) Get.offAllNamed(AppRoutes.home);
+          },
         ),
       ],
     );

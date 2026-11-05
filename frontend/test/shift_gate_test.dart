@@ -1,10 +1,17 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/controllers/shift_controller.dart';
 import 'package:frontend/locator.dart';
+import 'package:frontend/routes/app_pages.dart';
 import 'package:frontend/routes/app_routes.dart';
+import 'package:frontend/screen/home/home_screen.dart';
+import 'package:frontend/screen/shift/shift_screen.dart';
 import 'package:frontend/services/main_service/shift_service.dart';
 import 'package:frontend/services/storage_service.dart';
 import 'package:frontend/utils/shift_gate.dart';
+import 'package:get/get.dart';
 
 /// In-memory stand-in for the shifts API; throws the exact 409 messages.
 class _FakeShiftService extends ShiftService {
@@ -113,6 +120,7 @@ void main() {
   tearDown(() {
     fakeStorage.role = 'cashier';
     fakeStorage.loginOverride = null;
+    Get.reset();
   });
 
   test('shiftGateRoute sends a cashier with no open shift to the shift screen',
@@ -150,5 +158,52 @@ void main() {
     fakeStorage.loginOverride = {};
 
     expect(await shiftGateRoute(service: _FakeShiftService()), AppRoutes.home);
+  });
+
+  testWidgets('gate mode has no back arrow and opens home after start',
+      (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1280, 900);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+
+    final fake = _FakeShiftService();
+    Get.put(ShiftController(service: fake));
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/start',
+        getPages: [
+          GetPage(name: '/start', page: () => const Scaffold()),
+          ...AppPages.pages,
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    Get.offAllNamed(AppRoutes.shift, arguments: 'gate');
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(CupertinoIcons.back), findsNothing);
+
+    await tester.enterText(find.byType(TextFormField).first, '100');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Start Shift'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 4)); // let the toast timer fire
+    await tester.pumpAndSettle();
+
+    // The welcome card loads a remote placeholder avatar, which tests cannot fetch.
+    tester.takeException();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  testWidgets('non-gate visit keeps the back arrow', (tester) async {
+    Get.put(ShiftController(service: _FakeShiftService()));
+
+    await tester.pumpWidget(GetMaterialApp(home: ShiftScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(CupertinoIcons.back), findsOneWidget);
   });
 }

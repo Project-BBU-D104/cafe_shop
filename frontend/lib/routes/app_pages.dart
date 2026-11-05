@@ -65,7 +65,7 @@ class AppPages {
     
     GetPage(
       name: AppRoutes.shift,
-      page: () => ShiftScreen(),
+      page: () => ShiftScreen(gate: Get.arguments == 'gate'),
     ),
 
     GetPage(
