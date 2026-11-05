@@ -1,3 +1,4 @@
+import 'package:frontend/controllers/order_controller.dart';
 import 'package:frontend/services/main_service/order_service.dart';
 import 'package:frontend/widget/toast_widget.dart';
 import 'package:get/get.dart';
@@ -5,10 +6,11 @@ import 'package:get/get.dart';
 /// One order + its lifecycle actions. Predicates mirror the server state
 /// machine; the server still has the final say (409 on illegal moves).
 class OrderDetailController extends GetxController {
-  OrderDetailController(this.orderId);
+  OrderDetailController(this.orderId, {OrderService? service})
+      : service = service ?? OrderService();
 
   final int orderId;
-  final OrderService service = OrderService();
+  final OrderService service;
 
   final Rxn<Map<String, dynamic>> order = Rxn<Map<String, dynamic>>();
   final RxBool isLoading = false.obs;
@@ -59,12 +61,12 @@ class OrderDetailController extends GetxController {
   /// (409/404/network) shows the server message and reloads to resync.
   /// [reload] re-fetches the order instead of using the response body — the
   /// pay endpoint returns a PaymentResource, not an order.
-  Future<void> _act(
+  Future<bool> _act(
     Future<dynamic> Function() call, {
     String? successMessage,
     bool reload = false,
   }) async {
-    if (isActing.value) return;
+    if (isActing.value) return false;
 
     try {
       isActing.value = true;
@@ -80,32 +82,50 @@ class OrderDetailController extends GetxController {
       if (successMessage != null) {
         ToastWidget.show(message: successMessage, type: ToastType.success);
       }
+
+      return true;
     } catch (e) {
       ToastWidget.show(message: e.toString(), type: ToastType.error);
       await loadDetail();
+      return false;
     } finally {
       isActing.value = false;
     }
   }
 
-  Future<void> start() => _act(
+  Future<bool> start() => _act(
         () => service.updateStatus(orderId, 'preparing'),
         successMessage: 'Order is now preparing',
       );
 
-  Future<void> complete() => _act(
+  Future<bool> complete() => _act(
         () => service.updateStatus(orderId, 'completed'),
         successMessage: 'Order completed',
       );
 
-  Future<void> cancel({String? note}) => _act(
+  Future<bool> cancel({String? note}) => _act(
         () => service.cancelOrder(orderId, note: note),
         successMessage: 'Order cancelled',
       );
 
-  Future<void> pay(String method, {String? reference}) => _act(
-        () => service.payOrder(orderId, method, reference: reference),
-        successMessage: 'Payment recorded',
-        reload: true,
-      );
+  Future<bool> pay(String method, {String? reference}) async {
+    final bool paid = await _act(
+      () => service.payOrder(orderId, method, reference: reference),
+      successMessage: 'Payment recorded',
+      reload: true,
+    );
+
+    if (!paid) return false;
+
+    // The detail route lives in the home shell's nested navigator; popping to
+    // its first route closes the payment sheet and shows the order list again.
+    Get.until((route) => route.isFirst, id: 1);
+
+    // The cart flow has no awaiting push to refresh the list, so do it here.
+    if (Get.isRegistered<OrderController>()) {
+      Get.find<OrderController>().load(refresh: true);
+    }
+
+    return true;
+  }
 }
