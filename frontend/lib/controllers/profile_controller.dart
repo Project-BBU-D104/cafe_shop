@@ -1,6 +1,6 @@
-import 'package:frontend/controllers/cart_controller.dart';
 import 'package:frontend/global.dart';
 import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/utils/session.dart';
 import 'package:frontend/widget/toast_widget.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -59,16 +59,5 @@ class ProfileController extends GetxController{
     role.value = user["role"] ?? "";
   }
 
-  void onLogoutPress(){
-    Get.offAllNamed('/login');
-
-    // The POS cart is permanent; don't leak it or its shop-scoped catalog
-    // cache to the next user.
-    if (Get.isRegistered<CartController>()) {
-      Get.find<CartController>().resetSession();
-    }
-
-    storage.lastUserLoginRemove();
-    storage.appStartUpWrite(route: '/login');
-  }
+  void onLogoutPress() => logout();
 }
