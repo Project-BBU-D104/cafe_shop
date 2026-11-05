@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/global.dart';
+import 'package:frontend/routes/app_routes.dart';
 import 'package:frontend/services/api_service.dart';
 import 'package:frontend/services/main_service/shift_service.dart';
+import 'package:frontend/utils/shift_gate.dart';
 import 'package:frontend/widget/toast_widget.dart';
 import 'package:get/get.dart';
 
 class ShiftController extends GetxController {
   final ShiftService _service;
 
-  ShiftController({ShiftService? service}) : _service = service ?? ShiftService();
+  /// True on the blocking gate screen: open home once a shift exists.
+  final bool gate;
+
+  ShiftController({ShiftService? service, this.gate = false})
+      : _service = service ?? ShiftService();
 
   /// The caller's open shift, or null.
   final Rxn<Map<String, dynamic>> currentShift = Rxn();
@@ -74,6 +80,10 @@ class ShiftController extends GetxController {
       currentShift.value = resp is Map && resp['data'] is Map
           ? Map<String, dynamic>.from(resp['data'] as Map)
           : null;
+      setShiftGateOpen(hasOpenShift);
+
+      // Deep-link/reload with a shift already open: let it through.
+      if (gate && hasOpenShift) Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       ToastWidget.show(
         message: 'Failed to load current shift: $e',
@@ -204,6 +214,7 @@ class ShiftController extends GetxController {
       if (resp is Map && resp['data'] is Map) {
         currentShift.value = Map<String, dynamic>.from(resp['data'] as Map);
       }
+      setShiftGateOpen(true);
 
       openingCashController.clear();
       startNotesController.clear();
@@ -239,6 +250,7 @@ class ShiftController extends GetxController {
       await _service.close(shift['id'] as int, buildClosePayload());
 
       currentShift.value = null;
+      setShiftGateOpen(false);
       closingCashController.clear();
 
       await loadHistory(silent: true);

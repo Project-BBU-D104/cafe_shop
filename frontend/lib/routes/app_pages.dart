@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:frontend/controllers/landing_controller.dart';
 import 'package:frontend/screen/auth/login_screen.dart';
 import 'package:frontend/screen/home/home_screen.dart';
@@ -16,10 +17,20 @@ import 'package:frontend/screen/category/category_screen.dart';
 import 'package:frontend/screen/product/product_screen.dart';
 import 'package:frontend/screen/inventory/inventory_movement/inventory_movement_screen.dart';
 import 'package:frontend/screen/shift/shift_screen.dart';
+import 'package:frontend/utils/shift_gate.dart';
 import 'package:frontend/screen/order/cart_screen.dart';
 import 'package:frontend/screen/order/catalog_screen.dart';
 import 'package:frontend/screen/order/order_detail_screen.dart';
 
+
+/// Blocks /home for a cashier whose gate check has not confirmed an open
+/// shift (including URL deep-links and reloads).
+class ShiftGateMiddleware extends GetMiddleware {
+  @override
+  RouteSettings? redirect(String? route) => shiftGatePasses
+      ? null
+      : const RouteSettings(name: AppRoutes.shift, arguments: 'gate');
+}
 
 class AppPages {
   static final pages = [
@@ -37,6 +48,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.home,
       page: () => HomeScreen(),
+      middlewares: [ShiftGateMiddleware()],
     ),
     GetPage(
       name: AppRoutes.report,

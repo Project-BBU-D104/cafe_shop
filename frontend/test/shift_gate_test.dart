@@ -126,6 +126,7 @@ void main() {
   tearDown(() {
     fakeStorage.role = 'cashier';
     fakeStorage.loginOverride = null;
+    resetShiftGateCache();
     Get.reset();
   });
 
@@ -210,6 +211,54 @@ void main() {
     await tester.pumpAndSettle();
 
     // The welcome card loads a remote placeholder avatar, which tests cannot fetch.
+    tester.takeException();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  testWidgets('navigating a cashier without a shift to /home lands on the gate',
+      (tester) async {
+    fakeStorage.role = 'cashier';
+    Get.put(ShiftController(service: _FakeShiftService()));
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/start',
+        getPages: [
+          GetPage(name: '/start', page: () => const Scaffold()),
+          ...AppPages.pages,
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    Get.offAllNamed(AppRoutes.home);
+    await tester.pumpAndSettle();
+    tester.takeException();
+
+    expect(find.byType(ShiftScreen), findsOneWidget);
+    expect(find.byType(HomeScreen), findsNothing);
+  });
+
+  testWidgets('the gate forwards home when a shift is already open',
+      (tester) async {
+    fakeStorage.role = 'cashier';
+    final fake = _FakeShiftService()
+      ..openShift = {'id': 1, 'opening_cash': '100.00', 'ended_at': null};
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/start',
+        getPages: [
+          GetPage(name: '/start', page: () => const Scaffold()),
+          ...AppPages.pages,
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    Get.put(ShiftController(service: fake, gate: true));
+    await tester.pumpAndSettle();
     tester.takeException();
 
     expect(find.byType(HomeScreen), findsOneWidget);

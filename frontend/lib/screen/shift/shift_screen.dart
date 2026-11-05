@@ -11,9 +11,9 @@ class ShiftScreen extends StatelessWidget {
   /// Blocking variant: no back arrow, and starting the shift opens home.
   final bool gate;
 
-  final ShiftController ctr = Get.isRegistered<ShiftController>()
+  late final ShiftController ctr = Get.isRegistered<ShiftController>()
       ? Get.find<ShiftController>()
-      : Get.put(ShiftController());
+      : Get.put(ShiftController(gate: gate));
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
