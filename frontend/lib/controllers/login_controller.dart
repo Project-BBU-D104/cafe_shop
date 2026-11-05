@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/global.dart';
+import 'package:frontend/routes/app_routes.dart';
 import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/utils/shift_gate.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController{
@@ -50,7 +52,9 @@ class LoginController extends GetxController{
 
       await storage.appStartUpWrite(route: "/home");
   
-      Get.offNamed('/home');
+      final route = await shiftGateRoute();
+
+      Get.offAllNamed(route, arguments: route == AppRoutes.shift ? 'gate' : null);
 
        
      
