@@ -219,6 +219,29 @@ void main() {
     expect(ctr.canViewHistory, isFalse);
   });
 
+  test('canManageOwnShift gates on role', () {
+    final ctr = ShiftController(service: _FakeShiftService());
+
+    for (final role in ['cashier', 'manager']) {
+      fakeStorage.role = role;
+      expect(ctr.canManageOwnShift, isTrue, reason: role);
+    }
+    for (final role in ['owner', 'admin']) {
+      fakeStorage.role = role;
+      expect(ctr.canManageOwnShift, isFalse, reason: role);
+    }
+  });
+
+  test('loadCurrent is skipped for owner and admin', () async {
+    final fake = _FakeShiftService();
+    final ctr = ShiftController(service: fake);
+    fakeStorage.role = 'owner';
+
+    await ctr.loadCurrent();
+
+    expect(fake.currentCalls, 0);
+  });
+
   // --- start/close flows (Task 4) ---
 
   testWidgets('onStartShift sets currentShift, clears fields and refreshes history',

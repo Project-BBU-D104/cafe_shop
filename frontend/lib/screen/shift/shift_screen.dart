@@ -35,17 +35,18 @@ class ShiftScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(() {
-                  if (ctr.isLoading.value && !ctr.hasOpenShift) {
-                    return const Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  return ctr.hasOpenShift
-                      ? _buildOpenShiftSection(context)
-                      : _buildStartForm(context);
-                }),
+                if (ctr.canManageOwnShift)
+                  Obx(() {
+                    if (ctr.isLoading.value && !ctr.hasOpenShift) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    return ctr.hasOpenShift
+                        ? _buildOpenShiftSection(context)
+                        : _buildStartForm(context);
+                  }),
                 if (ctr.canViewHistory) _buildHistorySection(),
               ],
             ),

@@ -37,6 +37,14 @@ class ShiftController extends GetxController {
     return const ['owner', 'admin', 'manager'].contains(role);
   }
 
+  /// Same rule as shifts/start (role:cashier,manager).
+  bool get canManageOwnShift {
+    final user = storage.lastUserLoginRead['user'];
+    final String role = user is Map ? (user['role'] ?? '').toString() : '';
+
+    return const ['cashier', 'manager'].contains(role);
+  }
+
   bool get hasOpenShift => currentShift.value != null;
 
   @override
@@ -55,6 +63,7 @@ class ShiftController extends GetxController {
   }
 
   Future<void> loadCurrent() async {
+    if (!canManageOwnShift) return; // guaranteed 403 for owner/admin
     if (isLoading.value) return;
 
     try {
