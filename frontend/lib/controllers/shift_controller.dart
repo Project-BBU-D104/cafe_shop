@@ -3,6 +3,7 @@ import 'package:frontend/global.dart';
 import 'package:frontend/routes/app_routes.dart';
 import 'package:frontend/services/api_service.dart';
 import 'package:frontend/services/main_service/shift_service.dart';
+import 'package:frontend/utils/session.dart';
 import 'package:frontend/utils/shift_gate.dart';
 import 'package:frontend/widget/toast_widget.dart';
 import 'package:get/get.dart';
@@ -35,21 +36,19 @@ class ShiftController extends GetxController {
   final startNotesController = TextEditingController();
   final closingCashController = TextEditingController();
 
-  /// Same rule as GET /shifts (role:owner,admin,manager).
-  bool get canViewHistory {
+  String get _role {
     final user = storage.lastUserLoginRead['user'];
-    final String role = user is Map ? (user['role'] ?? '').toString() : '';
-
-    return const ['owner', 'admin', 'manager'].contains(role);
+    return user is Map ? (user['role'] ?? '').toString() : '';
   }
+
+  /// Same rule as GET /shifts (role:owner,admin,manager).
+  bool get canViewHistory => const ['owner', 'admin', 'manager'].contains(_role);
 
   /// Same rule as shifts/start (role:cashier,manager).
-  bool get canManageOwnShift {
-    final user = storage.lastUserLoginRead['user'];
-    final String role = user is Map ? (user['role'] ?? '').toString() : '';
+  bool get canManageOwnShift => const ['cashier', 'manager'].contains(_role);
 
-    return const ['cashier', 'manager'].contains(role);
-  }
+  /// Closing the shift ends the cashier's session; other roles keep working.
+  bool get isCashier => _role == 'cashier';
 
   bool get hasOpenShift => currentShift.value != null;
 
@@ -162,6 +161,25 @@ class ShiftController extends GetxController {
 
   static const _formFields = {'opening_cash', 'notes', 'closing_cash'};
 
+  /// Blocking warning; dismissing it still continues to the logout below.
+  Future<void> _showShiftClosedDialog() {
+    return Get.dialog<void>(
+      AlertDialog(
+        title: Text('Shift Closed'.tr),
+        content: Text(
+          'Your shift has been closed. You will be logged out now.'.tr,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('OK'.tr),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+
   Future<void> _handleActionError(Object e) async {
     if (e is ValidationException) {
       // Show each message under its own field instead of a generic toast.
@@ -254,6 +272,12 @@ class ShiftController extends GetxController {
       closingCashController.clear();
 
       await loadHistory(silent: true);
+
+      if (isCashier) {
+        await _showShiftClosedDialog();
+        logout();
+        return;
+      }
 
       ToastWidget.show(
         message: 'Shift closed successfully'.tr,

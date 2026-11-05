@@ -214,4 +214,8 @@ const Map<String, String> kmKH = {
   'ID': 'លេខអត្តសញ្ញាណ',
   'Edit User': 'កែប្រែអ្នកប្រើប្រាស់',
   'Password': 'ពាក្យសម្ងាត់',
+  'Shift Closed': 'វេនត្រូវបានបិទ',
+  'Your shift has been closed. You will be logged out now.':
+      'វេនរបស់អ្នកត្រូវបានបិទ។ អ្នកនឹងត្រូវបានចាកចេញឥឡូវនេះ។',
+  'OK': 'យល់ព្រម',
 };

@@ -214,4 +214,8 @@ const Map<String, String> enUS = {
   'Transfer Date': 'Transfer Date',
   'Select Transfer Date': 'Select Transfer Date',
   'Select Date': 'Select Date',
+  'Shift Closed': 'Shift Closed',
+  'Your shift has been closed. You will be logged out now.':
+      'Your shift has been closed. You will be logged out now.',
+  'OK': 'OK',
 };

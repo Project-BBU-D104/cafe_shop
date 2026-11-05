@@ -3,7 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/controllers/shift_controller.dart';
 import 'package:frontend/locator.dart';
+import 'package:frontend/routes/app_routes.dart';
 import 'package:frontend/services/api_service.dart';
+import 'package:frontend/utils/shift_gate.dart';
 import 'package:frontend/services/main_service/shift_service.dart';
 import 'package:frontend/services/storage_service.dart';
 import 'package:get/get.dart';
@@ -83,10 +85,16 @@ class _FakeShiftService extends ShiftService {
 /// Logged-in staff member; tests flip [role] to exercise the history gate.
 class _FakeStorageService implements IStorageService {
   String role = 'manager';
+  int logoutCalls = 0;
 
   @override
   Map<String, dynamic> get lastUserLoginRead =>
       {'user': {'id': 1, 'role': role}};
+
+  @override
+  Future<void> lastUserLoginRemove() async {
+    logoutCalls++;
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -105,7 +113,12 @@ void main() {
     }
   });
 
-  tearDown(() => fakeStorage.role = 'manager');
+  tearDown(() {
+    fakeStorage.role = 'manager';
+    fakeStorage.logoutCalls = 0;
+    resetShiftGateCache();
+    Get.reset();
+  });
 
   test('validateCash mirrors the API decimal rules', () {
     final ctr = ShiftController(service: _FakeShiftService());
@@ -378,5 +391,99 @@ void main() {
 
     expect(fake.startCalls, 0);
     expect(fake.closeCalls, 0);
+  });
+
+  // --- cashier logout after close (Task 2) ---
+
+  testWidgets('a cashier who closes a shift is warned and logged out',
+      (tester) async {
+    fakeStorage.role = 'cashier';
+    final fake = _FakeShiftService();
+    await fake.start({'opening_cash': 50.0});
+    final ctr = ShiftController(service: fake);
+    await ctr.loadCurrent();
+    ctr.closingCashController.text = '80';
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/start',
+        getPages: [
+          GetPage(name: '/start', page: () => const Scaffold()),
+          GetPage(name: AppRoutes.login, page: () => const Scaffold()),
+        ],
+      ),
+    );
+
+    final closing = ctr.onCloseShift();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Shift Closed'), findsOneWidget);
+    // Not logged out until the warning is acknowledged.
+    expect(Get.currentRoute, isNot(AppRoutes.login));
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await closing;
+
+    expect(fakeStorage.logoutCalls, 1);
+    expect(Get.currentRoute, AppRoutes.login);
+    expect(ctr.hasOpenShift, isFalse);
+    expect(shiftGatePasses, isFalse);
+  });
+
+  testWidgets('a manager who closes a shift stays logged in', (tester) async {
+    final fake = _FakeShiftService();
+    await fake.start({'opening_cash': 50.0});
+    final ctr = ShiftController(service: fake);
+    await ctr.loadCurrent();
+    ctr.closingCashController.text = '80';
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/start',
+        getPages: [
+          GetPage(name: '/start', page: () => const Scaffold()),
+          GetPage(name: AppRoutes.login, page: () => const Scaffold()),
+        ],
+      ),
+    );
+
+    await ctr.onCloseShift();
+    await tester.pump(); // build the success toast
+
+    expect(find.text('Shift Closed'), findsNothing);
+    expect(fakeStorage.logoutCalls, 0);
+    expect(Get.currentRoute, '/start');
+    expect(find.text('Shift closed successfully'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4)); // let the toast timer fire
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a failed close does not warn or log the cashier out',
+      (tester) async {
+    fakeStorage.role = 'cashier';
+    final fake = _FakeShiftService(); // getCurrent → null, close → 409
+    final ctr = ShiftController(service: fake);
+    ctr.currentShift.value = {'id': 7};
+    ctr.closingCashController.text = '80';
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        initialRoute: '/start',
+        getPages: [
+          GetPage(name: '/start', page: () => const Scaffold()),
+          GetPage(name: AppRoutes.login, page: () => const Scaffold()),
+        ],
+      ),
+    );
+
+    await ctr.onCloseShift();
+    await tester.pump(const Duration(seconds: 4)); // let the error toast fire
+    await tester.pumpAndSettle();
+
+    expect(find.text('Shift Closed'), findsNothing);
+    expect(fakeStorage.logoutCalls, 0);
+    expect(Get.currentRoute, '/start');
   });
 }
