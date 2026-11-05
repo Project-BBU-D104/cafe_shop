@@ -365,14 +365,6 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         ),
         child: Obx(() {
-          // The pay call finished (success swaps in the paid order, failure
-          // toasts and reloads) — either way the sheet is done.
-          if (!widget.ctr.isActing.value && !widget.ctr.canPay) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) Navigator.pop(context);
-            });
-          }
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
