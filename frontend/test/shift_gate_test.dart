@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,10 +37,14 @@ class _FakeShiftService extends ShiftService {
   /// When true, [getCurrent] throws instead of returning a result.
   bool shouldThrow = false;
 
+  /// When true, [getCurrent] never completes (a hung request).
+  bool hang = false;
+
   @override
   Future<dynamic> getCurrent() async {
     currentCalls++;
     if (shouldThrow) throw Exception('network down');
+    if (hang) return Completer<dynamic>().future;
     return {'data': openShift};
   }
 
@@ -158,6 +164,17 @@ void main() {
     fakeStorage.loginOverride = {};
 
     expect(await shiftGateRoute(service: _FakeShiftService()), AppRoutes.home);
+  });
+
+  testWidgets('shiftGateRoute fails open when getCurrent hangs',
+      (tester) async {
+    final fake = _FakeShiftService()..hang = true;
+    String? route;
+
+    shiftGateRoute(service: fake).then((r) => route = r);
+    await tester.pump(const Duration(seconds: 11));
+
+    expect(route, AppRoutes.home);
   });
 
   testWidgets('gate mode has no back arrow and opens home after start',

@@ -11,7 +11,9 @@ Future<String> shiftGateRoute({ShiftService? service}) async {
   if (role != 'cashier') return AppRoutes.home;
 
   try {
-    final resp = await (service ?? ShiftService()).getCurrent();
+    final resp = await (service ?? ShiftService())
+        .getCurrent()
+        .timeout(const Duration(seconds: 10));
 
     return resp is Map && resp['data'] is Map
         ? AppRoutes.home
