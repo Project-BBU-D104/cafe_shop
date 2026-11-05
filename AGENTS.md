@@ -2,7 +2,7 @@
 
 ## Project Structure
 
-This repository pairs a Flutter/Dart client in `frontend/` with a Laravel/PHP API in `laravel_api/`. Flutter screens, controllers, services, routes, and shared widgets live under `frontend/lib/`; image, icon, and font files are in `frontend/assets/`, with Dart tests in `frontend/test/`. Laravel endpoints are in `laravel_api/routes/`; application code is grouped under `app/`, migrations and seed data under `database/`, and PHPUnit tests under `tests/`. Root architecture and API documents describe the broader design. Follow `laravel_api/AGENTS.md` for backend-specific rules.
+This repository pairs a Flutter/Dart client in `frontend/` with a Laravel/PHP API in `laravel_api/`. Flutter screens, controllers, services, routes, and shared widgets live under `frontend/lib/`; image, icon, and font files are in `frontend/assets/`, with Dart tests in `frontend/test/`. Laravel endpoints are in `laravel_api/routes/`; application code is grouped under `app/`, migrations and seed data under `database/`, and PHPUnit tests under `tests/`. Root architecture and API documents describe the broader design. Any plan written as a Markdown file goes in the repository root, never in a subdirectory. Follow `laravel_api/AGENTS.md` for backend-specific rules.
 
 ## Build, Test, and Development
 

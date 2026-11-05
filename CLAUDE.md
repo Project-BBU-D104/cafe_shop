@@ -8,6 +8,7 @@ Full-stack coffee shop management system: Flutter app (`frontend/`) + Laravel 13
 
 - `API_V1.md` — hand-maintained API docs; keep in sync when adding/changing v1 endpoints.
 - `COFFEE_SHOP_ARCHITECTURE.md`, `FLUTTER_ARCHITECTURE.md` — design specs.
+- Any plan written as a `.md` file goes in the repository root (e.g. `PLAN.md`), never in a subdirectory.
 
 ## Git
 
