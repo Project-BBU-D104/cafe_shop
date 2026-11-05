@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/controllers/order_detail_controller.dart';
+import 'package:frontend/screen/order/order_detail_screen.dart';
 import 'package:frontend/services/main_service/order_service.dart';
 import 'package:get/get.dart';
 
@@ -153,6 +154,47 @@ void main() {
     expect(find.text('DETAIL'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 4)); // let the error toast expire
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('paying from the real sheet closes it and the detail once',
+      (tester) async {
+    final fake = _FakeOrderService();
+    final ctr = OrderDetailController(1, service: fake);
+    await ctr.loadDetail();
+    Get.put(ctr); // the screen's own Get.put reuses this fake-backed instance
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        home: Navigator(
+          key: Get.nestedKey(1),
+          onGenerateRoute: (settings) => MaterialPageRoute(
+            settings: settings,
+            builder: (_) => settings.name == '/detail'
+                ? OrderDetailScreen()
+                : Scaffold(body: Text('LIST')),
+          ),
+        ),
+      ),
+    );
+    Get.nestedKey(1)!.currentState!.pushNamed('/detail');
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Record Payment'));
+    await tester.tap(find.text('Record Payment'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pay'), findsOneWidget);
+
+    await tester.tap(find.text('Pay'));
+    await tester.pumpAndSettle();
+
+    expect(fake.payCalls, 1);
+    expect(ctr.paymentStatus, 'paid');
+    expect(find.text('Pay'), findsNothing);
+    expect(find.text('Record Payment'), findsNothing);
+    expect(find.text('LIST'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4)); // let the success toast expire
     await tester.pumpAndSettle();
   });
 }
