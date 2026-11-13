@@ -33,27 +33,27 @@ class HomeScreen extends StatelessWidget {
                   labelType: NavigationRailLabelType.all,
                   destinations: [
                     NavigationRailDestination(
-                      icon: const Icon(Icons.home_rounded),
+                      icon: const Icon(Icons.home_outlined),
                       selectedIcon: const Icon(Icons.home),
                       label: Text('Home'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.shopping_bag_rounded),
+                      icon: const Icon(Icons.shopping_bag_outlined),
                       selectedIcon: const Icon(Icons.shopping_bag),
                       label: Text('Manage'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.shopping_cart_rounded),
+                      icon: const Icon(Icons.shopping_cart_outlined),
                       selectedIcon: const Icon(Icons.shopping_cart),
                       label: Text('Order'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.receipt_long_rounded),
-                      selectedIcon: const Icon(Icons.receipt_long),
+                      icon: const Icon(Icons.receipt_outlined),
+                      selectedIcon: const Icon(Icons.receipt),
                       label: Text('Report'.tr),
                     ),
                     NavigationRailDestination(
-                      icon: const Icon(Icons.person_2_rounded),
+                      icon: const Icon(Icons.person_2_outlined),
                       selectedIcon: const Icon(Icons.person_2),
                       label: Text('Profile'.tr),
                     ),
@@ -114,8 +114,8 @@ class HomeScreen extends StatelessWidget {
                     label: 'Order'.tr,
                   ),
                   NavigationDestination(
-                    icon: const Icon(Icons.receipt_long_outlined),
-                    selectedIcon: const Icon(Icons.receipt_long),
+                    icon: const Icon(Icons.receipt_outlined),
+                    selectedIcon: const Icon(Icons.receipt),
                     label: 'Report'.tr,
                   ),
                   NavigationDestination(
